@@ -75,6 +75,18 @@ app.get("/api/realisasi-anggaran", async (req, res) => {
   }
 });
 
+// Ambil semua daftar perangkat daerah
+app.get("/api/perangkat", async (req, res) => {
+  try {
+    const data = await prisma.perangkat.findMany({
+      orderBy: { name: "asc" }, // Urutkan berdasarkan nama A-Z
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ message: "Gagal mengambil data perangkat", error });
+  }
+});
+
 // ==========================================
 // 1. ENDPOINT PUBLIC (Untuk Halaman Utama Web)
 // ==========================================

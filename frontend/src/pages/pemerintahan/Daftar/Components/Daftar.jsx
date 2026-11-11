@@ -1,34 +1,55 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Search, List, LayoutGrid, ExternalLink, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
-
-// Coba import dari folder data lokal atau data global (sesuaikan jika nama file beda)
-import { dummyPerangkatData as externalData } from '../../../../data/perangkatData';
-
-// Data Cadangan (Fallback) jika import data di atas gagal/kosong agar layar TIDAK PUTIH
-const fallbackData = Array.from({ length: 26 }, (_, i) => ({
-  id: i + 1,
-  name: `Nama Badan, Institusi, atau Dinas ${i + 1}`,
-  email: `alamat.email${i + 1}@bekasikab.go.id`
-}));
-
-const dummyPerangkatData = externalData || fallbackData;
-const totalPerangkat = dummyPerangkatData.length;
+import API from '../../../../services/api'; // Sesuaikan path ini dengan pengaturan axios/fetch kamu
 
 export default function PerangkatList() {
+  // --- STATE DATA API ---
+  const [dataPerangkat, setDataPerangkat] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // --- STATE UI & PAGINATION ---
   const [viewMode, setViewMode] = useState('list');
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
-  
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // 1. Fetch Data dari API
+  useEffect(() => {
+    API.get('/perangkat') // Sesuaikan dengan endpoint backend
+      .then((res) => {
+        setDataPerangkat(res.data);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error("Gagal mengambil data perangkat:", err);
+        setIsLoading(false);
+      });
+  }, []);
+
+  // 2. Logika Pencarian (Search)
+  const filteredData = useMemo(() => {
+    return dataPerangkat.filter(item => 
+      item.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      item.email?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [dataPerangkat, searchQuery]);
+
+  // 3. Logika Pagination
+  const totalPerangkat = filteredData.length;
   const totalPages = Math.ceil(totalPerangkat / itemsPerPage) || 1;
   
-  const paginatedData = dummyPerangkatData.slice(
+  // Reset page ke 1 kalau hasil pencarian berubah
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, itemsPerPage]);
+
+  const paginatedData = filteredData.slice(
     (currentPage - 1) * itemsPerPage, 
     currentPage * itemsPerPage
   );
 
   const handleItemsPerPageChange = (e) => {
     setItemsPerPage(Number(e.target.value));
-    setCurrentPage(1);
   };
 
   const handlePrevPage = () => {
@@ -39,6 +60,7 @@ export default function PerangkatList() {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
+  // 4. Logika Efek Reveal Animasi
   const revealRefs = useRef([]);
   revealRefs.current = []; 
 
@@ -91,6 +113,8 @@ export default function PerangkatList() {
               <input 
                 type="text" 
                 placeholder="Cari Badan, Institusi, dan Dinas" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-[#EADFDE] text-14 md:text-16 text-slate-800 placeholder-slate-500 pl-10 pr-3 py-2.5 md:py-2 rounded-xl md:rounded-md focus:outline-none focus:ring-2 focus:ring-[#0B5D34]"
               />
             </div>
@@ -120,133 +144,152 @@ export default function PerangkatList() {
         </div>
 
         {/* ================= DAFTAR KARTU PERANGKAT ================= */}
-        <div className={`
-          ${viewMode === 'list' ? 'flex flex-col gap-3 md:gap-4' : 'grid grid-cols-1 md:grid-cols-2 gap-4'}
-        `}>
-          {paginatedData.map((item) => (
-            <div 
-              key={item.id}
-              ref={addToRefs}
-              className="opacity-0 translate-y-12 transition-all duration-700 ease-out group bg-[#EADFDE] p-3.5 md:p-4 rounded-2xl md:rounded-lg flex flex-col md:flex-row gap-3 md:gap-5 hover:bg-[#0B5D34] hover:shadow-lg cursor-default border border-transparent hover:border-[#0B5D34]"
-            >
-              
-              <div className="flex items-center md:items-start gap-3 md:gap-5 flex-1">
-                <div className="w-[70px] h-[70px] md:w-[100px] md:h-[100px] bg-[#9F8A88] rounded-xl md:rounded-md shrink-0 flex items-center justify-center text-white/50 text-xs font-bold group-hover:bg-[#084225] group-hover:text-white/80 transition-colors duration-300">
-                  {item.id}
-                </div>
+        {isLoading ? (
+          <div className="py-10 text-center text-slate-700 font-semibold">Memuat daftar perangkat daerah...</div>
+        ) : dataPerangkat.length === 0 ? (
+          <div className="py-12 text-center bg-white/40 rounded-xl border border-white/50">
+            <h3 className="text-xl font-bold text-slate-800 mb-2">Belum Ada Data</h3>
+            <p className="text-slate-600">Daftar perangkat belum ditambahkan dari Dashboard Admin.</p>
+          </div>
+        ) : filteredData.length === 0 ? (
+          <div className="py-10 text-center text-slate-700">Tidak ada perangkat yang cocok dengan pencarian "{searchQuery}".</div>
+        ) : (
+          <div className={`
+            ${viewMode === 'list' ? 'flex flex-col gap-3 md:gap-4' : 'grid grid-cols-1 md:grid-cols-2 gap-4'}
+          `}>
+            {paginatedData.map((item, index) => (
+              <div 
+                key={item.id}
+                ref={addToRefs}
+                // Menambahkan item.website jika ada dari database (fallback ke '#' jika kosong)
+                onClick={() => window.open(item.website || '#', '_blank')}
+                className="opacity-0 translate-y-12 transition-all duration-700 ease-out group bg-[#EADFDE] p-3.5 md:p-4 rounded-2xl md:rounded-lg flex flex-col md:flex-row gap-3 md:gap-5 hover:bg-[#0B5D34] hover:shadow-lg cursor-pointer border border-transparent hover:border-[#0B5D34]"
+              >
                 
-                <div className="flex flex-col justify-center flex-1">
-                  <h3 className="font-bold text-14 md:text-16 text-slate-900 group-hover:text-white transition-colors duration-300 leading-snug">
-                    {item.name}
-                  </h3>
-                  <p className="text-12 md:text-14 text-slate-600 group-hover:text-gray-200 transition-colors duration-300 mt-0.5">
-                    {item.email}
-                  </p>
+                <div className="flex items-center md:items-start gap-3 md:gap-5 flex-1">
+                  {/* Avatar box dengan ID atau nomor urut */}
+                  <div className="w-[70px] h-[70px] md:w-[100px] md:h-[100px] bg-[#9F8A88] rounded-xl md:rounded-md shrink-0 flex items-center justify-center text-white/50 text-xs font-bold group-hover:bg-[#084225] group-hover:text-white/80 transition-colors duration-300">
+                    {(currentPage - 1) * itemsPerPage + index + 1}
+                  </div>
+                  
+                  <div className="flex flex-col justify-center flex-1">
+                    <h3 className="font-bold text-14 md:text-16 text-slate-900 group-hover:text-white transition-colors duration-300 leading-snug">
+                      {item.name}
+                    </h3>
+                    <p className="text-12 md:text-14 text-slate-600 group-hover:text-gray-200 transition-colors duration-300 mt-0.5">
+                      {item.email || "Email belum tersedia"}
+                    </p>
+                  </div>
                 </div>
+
+                <div className="w-full md:w-auto mt-1 md:mt-0 flex items-end">
+                  <button className="w-full md:w-auto flex items-center justify-center gap-2 bg-[#9F8A88] text-white text-13 md:text-13 font-semibold px-4 py-2 md:py-1.5 rounded-xl md:rounded hover:bg-[#EADFDE] hover:text-slate-900 transition-colors duration-300">
+                    <span>Kunjungi Website</span> 
+                    <ExternalLink size={15} />
+                  </button>
+                </div>
+
               </div>
-
-              <div className="w-full md:w-auto mt-1 md:mt-0 flex items-end">
-                <button className="w-full md:w-auto flex items-center justify-center gap-2 bg-[#9F8A88] text-white text-13 md:text-13 font-semibold px-4 py-2 md:py-1.5 rounded-xl md:rounded hover:bg-[#EADFDE] hover:text-slate-900 transition-colors duration-300">
-                  <span>Kunjungi Website</span> 
-                  <ExternalLink size={15} />
-                </button>
-              </div>
-
-            </div>
-          ))}
-        </div>
-
-        {/* ================= PAGINATION (MOBILE) ================= */}
-        <div className="flex md:hidden justify-between items-center border-t border-[#A38A88]/60 pt-4 mt-1 text-14 text-slate-800 font-medium">
-          <button 
-            onClick={handlePrevPage}
-            disabled={currentPage === 1}
-            className={`p-1.5 rounded-lg transition-colors ${currentPage === 1 ? 'text-slate-400 cursor-not-allowed' : 'hover:bg-[#A38A88] hover:text-white'}`}
-          >
-            <ChevronLeft size={20} />
-          </button>
-
-          <div className="flex items-center gap-2">
-            <span>Halaman</span>
-            <div className="relative">
-              <select 
-                value={currentPage}
-                onChange={(e) => setCurrentPage(Number(e.target.value))}
-                className="appearance-none bg-transparent font-bold pl-2 pr-6 py-0.5 text-center focus:outline-none cursor-pointer"
-              >
-                {Array.from({ length: totalPages }, (_, i) => (
-                  <option key={i + 1} value={i + 1}>{i + 1}</option>
-                ))}
-              </select>
-              <ChevronDown size={16} className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-slate-700" />
-            </div>
-            <span>Dari <strong>{totalPages}</strong></span>
+            ))}
           </div>
+        )}
 
-          <button 
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages}
-            className={`p-1.5 rounded-lg transition-colors ${currentPage === totalPages ? 'text-slate-400 cursor-not-allowed' : 'hover:bg-[#A38A88] hover:text-white'}`}
-          >
-            <ChevronRight size={20} />
-          </button>
-        </div>
-
-        {/* ================= PAGINATION (DESKTOP) ================= */}
-        <div className="hidden md:flex justify-between items-center border-t border-[#A38A88] pt-6 mt-2 text-14 text-slate-800 font-medium">
-          <div className="flex items-center gap-2">
-            <span>Tampilkan</span>
-            <div className="relative">
-              <select 
-                value={itemsPerPage}
-                onChange={handleItemsPerPageChange}
-                className="appearance-none bg-[#EADFDE] pl-3 pr-8 py-1 rounded cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#A38A88] hover:bg-[#D8C7C6]"
-              >
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={26}>Semua (26)</option>
-              </select>
-              <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
-            <span>item Dari total {totalPerangkat}</span>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <span>Halaman</span>
-              <div className="relative">
-                <select 
-                  value={currentPage}
-                  onChange={(e) => setCurrentPage(Number(e.target.value))}
-                  className="appearance-none bg-[#EADFDE] pl-3 pr-8 py-1 rounded cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#A38A88] hover:bg-[#D8C7C6]"
-                >
-                  {Array.from({ length: totalPages }, (_, i) => (
-                    <option key={i + 1} value={i + 1}>{i + 1}</option>
-                  ))}
-                </select>
-                <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
-              </div>
-              <span>Dari {totalPages}</span>
-            </div>
-            <div className="flex gap-1">
+        {/* ================= PAGINATION ================= */}
+        {filteredData.length > 0 && (
+          <>
+            {/* PAGINATION (MOBILE) */}
+            <div className="flex md:hidden justify-between items-center border-t border-[#A38A88]/60 pt-4 mt-1 text-14 text-slate-800 font-medium">
               <button 
                 onClick={handlePrevPage}
                 disabled={currentPage === 1}
-                className={`p-1 rounded transition-colors ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'hover:bg-[#A38A88] hover:text-white'}`}
+                className={`p-1.5 rounded-lg transition-colors ${currentPage === 1 ? 'text-slate-400 cursor-not-allowed' : 'hover:bg-[#A38A88] hover:text-white'}`}
               >
-                <ChevronLeft size={18} />
+                <ChevronLeft size={20} />
               </button>
+
+              <div className="flex items-center gap-2">
+                <span>Halaman</span>
+                <div className="relative">
+                  <select 
+                    value={currentPage}
+                    onChange={(e) => setCurrentPage(Number(e.target.value))}
+                    className="appearance-none bg-transparent font-bold pl-2 pr-6 py-0.5 text-center focus:outline-none cursor-pointer"
+                  >
+                    {Array.from({ length: totalPages }, (_, i) => (
+                      <option key={i + 1} value={i + 1}>{i + 1}</option>
+                    ))}
+                  </select>
+                  <ChevronDown size={16} className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-slate-700" />
+                </div>
+                <span>Dari <strong>{totalPages}</strong></span>
+              </div>
+
               <button 
                 onClick={handleNextPage}
                 disabled={currentPage === totalPages}
-                className={`p-1 rounded transition-colors ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'hover:bg-[#A38A88] hover:text-white'}`}
+                className={`p-1.5 rounded-lg transition-colors ${currentPage === totalPages ? 'text-slate-400 cursor-not-allowed' : 'hover:bg-[#A38A88] hover:text-white'}`}
               >
-                <ChevronRight size={18} />
+                <ChevronRight size={20} />
               </button>
             </div>
-          </div>
-        </div>
+
+            {/* PAGINATION (DESKTOP) */}
+            <div className="hidden md:flex justify-between items-center border-t border-[#A38A88] pt-6 mt-2 text-14 text-slate-800 font-medium">
+              <div className="flex items-center gap-2">
+                <span>Tampilkan</span>
+                <div className="relative">
+                  <select 
+                    value={itemsPerPage}
+                    onChange={handleItemsPerPageChange}
+                    className="appearance-none bg-[#EADFDE] pl-3 pr-8 py-1 rounded cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#A38A88] hover:bg-[#D8C7C6]"
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={totalPerangkat}>Semua ({totalPerangkat})</option>
+                  </select>
+                  <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+                <span>item Dari total {totalPerangkat}</span>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <span>Halaman</span>
+                  <div className="relative">
+                    <select 
+                      value={currentPage}
+                      onChange={(e) => setCurrentPage(Number(e.target.value))}
+                      className="appearance-none bg-[#EADFDE] pl-3 pr-8 py-1 rounded cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#A38A88] hover:bg-[#D8C7C6]"
+                    >
+                      {Array.from({ length: totalPages }, (_, i) => (
+                        <option key={i + 1} value={i + 1}>{i + 1}</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
+                  <span>Dari {totalPages}</span>
+                </div>
+                <div className="flex gap-1">
+                  <button 
+                    onClick={handlePrevPage}
+                    disabled={currentPage === 1}
+                    className={`p-1 rounded transition-colors ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'hover:bg-[#A38A88] hover:text-white'}`}
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+                  <button 
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages}
+                    className={`p-1 rounded transition-colors ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'hover:bg-[#A38A88] hover:text-white'}`}
+                  >
+                    <ChevronRight size={18} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
 
       </div>
     </div>
