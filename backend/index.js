@@ -1,115 +1,144 @@
 const express = require("express");
 const cors = require("cors");
 const { PrismaClient } = require("@prisma/client");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
+// Inisialisasi Express & Prisma
 const app = express();
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 5000;
 
+// Rahasia untuk token JWT
+const JWT_SECRET = process.env.JWT_SECRET || "rahasia_default_dev_123";
+
+// Middleware Dasar
 app.use(cors());
 app.use(express.json());
 
+// ==========================================
+// 1. ENDPOINT AUTH & MIDDLEWARE
+// ==========================================
+app.post("/api/admin/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const admin = await prisma.admin.findUnique({ where: { email: email } });
+    if (!admin)
+      return res.status(401).json({ message: "Email atau kata sandi salah." });
+
+    const isPasswordValid = await bcrypt.compare(password, admin.password);
+    if (!isPasswordValid)
+      return res.status(401).json({ message: "Email atau kata sandi salah." });
+
+    const token = jwt.sign({ id: admin.id, email: admin.email }, JWT_SECRET, {
+      expiresIn: "1d",
+    });
+
+    res.json({
+      message: "Login berhasil",
+      token: token,
+      admin: { id: admin.id, name: admin.name, email: admin.email },
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Gagal melakukan proses login", error });
+  }
+});
+
+// Middleware untuk mengunci rute Admin
+const authenticateAdmin = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token)
+    return res
+      .status(401)
+      .json({ message: "Akses ditolak. Token tidak ditemukan." });
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err)
+      return res
+        .status(403)
+        .json({ message: "Sesi telah habis atau token tidak valid." });
+    req.user = user;
+    next();
+  });
+};
+
+// ==========================================
+// 2. ENDPOINT PUBLIC (Untuk Halaman Utama Web)
+// ==========================================
 app.get("/api/pages/:slug", async (req, res) => {
   try {
-    const { slug } = req.params;
     const pageData = await prisma.page.findUnique({
-      where: { slug: slug }, // 'selayang-pandang'
+      where: { slug: req.params.slug },
     });
-
-    if (!pageData) {
-      // Kembalikan objek kosong atau pesan jika data belum ada (Empty State)
-      return res.status(200).json(null);
-    }
-
+    if (!pageData) return res.status(200).json(null);
     res.json(pageData);
   } catch (error) {
-    res.status(500).json({ message: "Gagal mengambil data halaman", error });
+    res.status(500).json({ message: "Error", error });
   }
 });
 
-// Ambil semua data Kecamatan
 app.get("/api/kecamatan", async (req, res) => {
   try {
-    const dataKecamatan = await prisma.kecamatan.findMany({
-      orderBy: { title: "asc" }, // Mengurutkan berdasarkan abjad A-Z
-    });
-    res.json(dataKecamatan);
+    res.json(await prisma.kecamatan.findMany({ orderBy: { title: "asc" } }));
   } catch (error) {
-    res.status(500).json({ message: "Gagal mengambil data kecamatan", error });
+    res.status(500).json({ message: "Error", error });
   }
 });
 
-// Ambil data PNS statis (biasanya hanya 1 row pertama)
 app.get("/api/datapns", async (req, res) => {
   try {
     const data = await prisma.dataPNS.findFirst();
-    if (!data) {
-      return res.status(200).json(null); // Return null jika database kosong
-    }
+    if (!data) return res.status(200).json(null);
     res.json(data);
   } catch (error) {
-    res.status(500).json({ message: "Gagal mengambil data PNS", error });
+    res.status(500).json({ message: "Error", error });
   }
 });
 
-// Ambil seluruh data anggaran, urutkan berdasarkan tahun
 app.get("/api/realisasi-anggaran", async (req, res) => {
   try {
     const data = await prisma.realisasiAnggaran.findMany({
-      orderBy: { year: "asc" }, // Pastikan data selalu urut dari tahun terkecil
+      orderBy: { year: "asc" },
     });
-
-    // Jika amount menggunakan BigInt di Prisma, kita perlu konversi ke string
-    // agar bisa di-serialize menjadi JSON dengan benar.
-    const formattedData = data.map((item) => ({
-      year: item.year,
-      amount: item.amount.toString(),
-    }));
-
-    res.json(formattedData);
+    res.json(
+      data.map((item) => ({ year: item.year, amount: item.amount.toString() })),
+    );
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Gagal mengambil data Realisasi Anggaran", error });
+    res.status(500).json({ message: "Error", error });
   }
 });
 
-// Ambil semua daftar perangkat daerah
 app.get("/api/perangkat", async (req, res) => {
   try {
-    const data = await prisma.perangkat.findMany({
-      orderBy: { name: "asc" }, // Urutkan berdasarkan nama A-Z
-    });
-    res.json(data);
+    res.json(await prisma.perangkat.findMany({ orderBy: { name: "asc" } }));
   } catch (error) {
-    res.status(500).json({ message: "Gagal mengambil data perangkat", error });
+    res.status(500).json({ message: "Error", error });
   }
 });
 
-// ==========================================
-// 1. ENDPOINT PUBLIC (Untuk Halaman Utama Web)
-// ==========================================
-
-// Ambil semua pimpinan aktif
 app.get("/api/pimpinan", async (req, res) => {
   try {
-    const data = await prisma.pimpinan.findMany({
-      where: { isActive: true },
-      orderBy: { urutan: "asc" },
-    });
-    res.json(data);
+    res.json(
+      await prisma.pimpinan.findMany({
+        where: { isActive: true },
+        orderBy: { urutan: "asc" },
+      }),
+    );
   } catch (error) {
-    res.status(500).json({ message: "Gagal mengambil data", error });
+    res.status(500).json({ message: "Error", error });
   }
 });
 
 // ==========================================
-// 2. ENDPOINT ADMIN (Untuk Dashboard Admin Nanti)
+// 3. ENDPOINT ADMIN (Dengan Gembok authenticateAdmin)
 // ==========================================
 
-// [CREATE] Tambah Pimpinan Baru dari Dashboard Admin
-app.post("/api/admin/pimpinan", async (req, res) => {
+// --- CRUD PIMPINAN ---
+app.post("/api/admin/pimpinan", authenticateAdmin, async (req, res) => {
   try {
     const { namaLengkap, jabatan, periode, fotoUrl, bio, urutan } = req.body;
     const newLeader = await prisma.pimpinan.create({
@@ -122,45 +151,267 @@ app.post("/api/admin/pimpinan", async (req, res) => {
         urutan: parseInt(urutan) || 0,
       },
     });
-    res
-      .status(201)
-      .json({ message: "Data pimpinan berhasil ditambahkan", data: newLeader });
+    res.status(201).json({ message: "Data ditambahkan", data: newLeader });
   } catch (error) {
-    res.status(500).json({ message: "Gagal menambah data", error });
+    res.status(500).json({ message: "Error", error });
   }
 });
 
-// [UPDATE] Edit Pimpinan dari Dashboard Admin
-app.put("/api/admin/pimpinan/:id", async (req, res) => {
+app.put("/api/admin/pimpinan/:id", authenticateAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const { namaLengkap, jabatan, periode, fotoUrl, bio, urutan, isActive } =
       req.body;
-
     const updatedLeader = await prisma.pimpinan.update({
       where: { id: parseInt(id) },
       data: { namaLengkap, jabatan, periode, fotoUrl, bio, urutan, isActive },
     });
-
-    res.json({ message: "Data berhasil diperbarui", data: updatedLeader });
+    res.json({ message: "Data diperbarui", data: updatedLeader });
   } catch (error) {
-    res.status(500).json({ message: "Gagal memperbarui data", error });
+    res.status(500).json({ message: "Error", error });
   }
 });
 
-// [DELETE] Hapus Pimpinan dari Dashboard Admin
-app.delete("/api/admin/pimpinan/:id", async (req, res) => {
+app.delete("/api/admin/pimpinan/:id", authenticateAdmin, async (req, res) => {
   try {
-    const { id } = req.params;
-    await prisma.pimpinan.delete({
-      where: { id: parseInt(id) },
-    });
-    res.json({ message: "Data berhasil dihapus" });
+    await prisma.pimpinan.delete({ where: { id: parseInt(req.params.id) } });
+    res.json({ message: "Data dihapus" });
   } catch (error) {
-    res.status(500).json({ message: "Gagal menghapus data", error });
+    res.status(500).json({ message: "Error", error });
   }
 });
 
+// --- CRUD HALAMAN (PAGES) ---
+app.post("/api/admin/pages", authenticateAdmin, async (req, res) => {
+  try {
+    const { title, slug, content, image } = req.body;
+    const newPage = await prisma.page.create({
+      data: { title, slug, content, image },
+    });
+    res.status(201).json({ message: "Halaman ditambahkan", data: newPage });
+  } catch (error) {
+    res.status(500).json({ message: "Error", error });
+  }
+});
+
+app.put("/api/admin/pages/:id", authenticateAdmin, async (req, res) => {
+  try {
+    const { title, slug, content, image } = req.body;
+    const updatedPage = await prisma.page.update({
+      where: { id: parseInt(req.params.id) },
+      data: { title, slug, content, image },
+    });
+    res.json({ message: "Halaman diperbarui", data: updatedPage });
+  } catch (error) {
+    res.status(500).json({ message: "Error", error });
+  }
+});
+
+app.delete("/api/admin/pages/:id", authenticateAdmin, async (req, res) => {
+  try {
+    await prisma.page.delete({ where: { id: parseInt(req.params.id) } });
+    res.json({ message: "Halaman dihapus" });
+  } catch (error) {
+    res.status(500).json({ message: "Error", error });
+  }
+});
+
+// --- CRUD KECAMATAN ---
+app.post("/api/admin/kecamatan", authenticateAdmin, async (req, res) => {
+  try {
+    const { title, area, population, description, image, mapUrl } = req.body;
+    const newKecamatan = await prisma.kecamatan.create({
+      data: { title, area, population, description, image, mapUrl },
+    });
+    res
+      .status(201)
+      .json({ message: "Kecamatan ditambahkan", data: newKecamatan });
+  } catch (error) {
+    res.status(500).json({ message: "Error", error });
+  }
+});
+
+app.put("/api/admin/kecamatan/:id", authenticateAdmin, async (req, res) => {
+  try {
+    const { title, area, population, description, image, mapUrl } = req.body;
+    const updatedKecamatan = await prisma.kecamatan.update({
+      where: { id: parseInt(req.params.id) },
+      data: { title, area, population, description, image, mapUrl },
+    });
+    res.json({ message: "Kecamatan diperbarui", data: updatedKecamatan });
+  } catch (error) {
+    res.status(500).json({ message: "Error", error });
+  }
+});
+
+app.delete("/api/admin/kecamatan/:id", authenticateAdmin, async (req, res) => {
+  try {
+    await prisma.kecamatan.delete({ where: { id: parseInt(req.params.id) } });
+    res.json({ message: "Kecamatan dihapus" });
+  } catch (error) {
+    res.status(500).json({ message: "Error", error });
+  }
+});
+
+// --- CRUD DATA PNS ---
+app.post("/api/admin/datapns", authenticateAdmin, async (req, res) => {
+  try {
+    const {
+      total,
+      lakiLaki,
+      perempuan,
+      golongan,
+      golonganJumlah,
+      pendidikan,
+      pendidikanJumlah,
+    } = req.body;
+    const existing = await prisma.dataPNS.findFirst();
+    if (existing)
+      return res
+        .status(400)
+        .json({ message: "Data PNS sudah ada, gunakan PUT." });
+
+    const newData = await prisma.dataPNS.create({
+      data: {
+        total,
+        lakiLaki,
+        perempuan,
+        golongan,
+        golonganJumlah,
+        pendidikan,
+        pendidikanJumlah,
+      },
+    });
+    res.status(201).json({ message: "Data PNS dibuat", data: newData });
+  } catch (error) {
+    res.status(500).json({ message: "Error", error });
+  }
+});
+
+app.put("/api/admin/datapns/:id", authenticateAdmin, async (req, res) => {
+  try {
+    const {
+      total,
+      lakiLaki,
+      perempuan,
+      golongan,
+      golonganJumlah,
+      pendidikan,
+      pendidikanJumlah,
+    } = req.body;
+    const updatedData = await prisma.dataPNS.update({
+      where: { id: parseInt(req.params.id) },
+      data: {
+        total,
+        lakiLaki,
+        perempuan,
+        golongan,
+        golonganJumlah,
+        pendidikan,
+        pendidikanJumlah,
+      },
+    });
+    res.json({ message: "Data PNS diperbarui", data: updatedData });
+  } catch (error) {
+    res.status(500).json({ message: "Error", error });
+  }
+});
+
+// --- CRUD REALISASI ANGGARAN ---
+app.post(
+  "/api/admin/realisasi-anggaran",
+  authenticateAdmin,
+  async (req, res) => {
+    try {
+      const { year, amount } = req.body;
+      const newAnggaran = await prisma.realisasiAnggaran.create({
+        data: { year: parseInt(year), amount: BigInt(amount) },
+      });
+      res
+        .status(201)
+        .json({
+          message: "Anggaran ditambahkan",
+          data: { ...newAnggaran, amount: newAnggaran.amount.toString() },
+        });
+    } catch (error) {
+      res.status(500).json({ message: "Error", error });
+    }
+  },
+);
+
+app.put(
+  "/api/admin/realisasi-anggaran/:id",
+  authenticateAdmin,
+  async (req, res) => {
+    try {
+      const { year, amount } = req.body;
+      const updatedAnggaran = await prisma.realisasiAnggaran.update({
+        where: { id: parseInt(req.params.id) },
+        data: { year: parseInt(year), amount: BigInt(amount) },
+      });
+      res.json({
+        message: "Anggaran diperbarui",
+        data: { ...updatedAnggaran, amount: updatedAnggaran.amount.toString() },
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Error", error });
+    }
+  },
+);
+
+app.delete(
+  "/api/admin/realisasi-anggaran/:id",
+  authenticateAdmin,
+  async (req, res) => {
+    try {
+      await prisma.realisasiAnggaran.delete({
+        where: { id: parseInt(req.params.id) },
+      });
+      res.json({ message: "Anggaran dihapus" });
+    } catch (error) {
+      res.status(500).json({ message: "Error", error });
+    }
+  },
+);
+
+// --- CRUD DAFTAR PERANGKAT ---
+app.post("/api/admin/perangkat", authenticateAdmin, async (req, res) => {
+  try {
+    const { name, email, website } = req.body;
+    const newPerangkat = await prisma.perangkat.create({
+      data: { name, email, website },
+    });
+    res
+      .status(201)
+      .json({ message: "Perangkat ditambahkan", data: newPerangkat });
+  } catch (error) {
+    res.status(500).json({ message: "Error", error });
+  }
+});
+
+app.put("/api/admin/perangkat/:id", authenticateAdmin, async (req, res) => {
+  try {
+    const { name, email, website } = req.body;
+    const updatedPerangkat = await prisma.perangkat.update({
+      where: { id: parseInt(req.params.id) },
+      data: { name, email, website },
+    });
+    res.json({ message: "Perangkat diperbarui", data: updatedPerangkat });
+  } catch (error) {
+    res.status(500).json({ message: "Error", error });
+  }
+});
+
+app.delete("/api/admin/perangkat/:id", authenticateAdmin, async (req, res) => {
+  try {
+    await prisma.perangkat.delete({ where: { id: parseInt(req.params.id) } });
+    res.json({ message: "Perangkat dihapus" });
+  } catch (error) {
+    res.status(500).json({ message: "Error", error });
+  }
+});
+
+// START SERVER
 app.listen(PORT, () => {
   console.log(`🚀 Server backend siap di http://localhost:${PORT}`);
 });
