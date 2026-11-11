@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Page {
+  id        Int      @id @default(autoincrement())
+  slug      String   @unique
+  title     String
+  content   String   @db.Text
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("pages")
+}
+
+model Pimpinan {
+  id          Int      @id @default(autoincrement())
+  namaLengkap String
+  jabatan     String
+  periode     String
+  fotoUrl     String?
+  urutan      Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  bio         String?  @db.Text
+
+  @@map("pimpinan")
+}
+
+model PerangkatDaerah {
+  id           Int      @id @default(autoincrement())
+  namaInstansi String
+  kategori     String
+  email        String?
+  websiteUrl   String?
+  alamat       String?  @db.Text
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("perangkat_daerah")
+}
+
+model Kecamatan {
+  id            Int             @id @default(autoincrement())
+  namaKecamatan String
+  desaKelurahan DesaKelurahan[]
+
+  @@map("kecamatan")
+}
+
+model DesaKelurahan {
+  id          Int             @id @default(autoincrement())
+  kecamatanId Int
+  namaWilayah String
+  kategori    KategoriWilayah
+  kecamatan   Kecamatan       @relation(fields: [kecamatanId], references: [id], onDelete: Cascade)
+
+  @@index([kecamatanId], map: "desa_kelurahan_kecamatanId_fkey")
+  @@map("desa_kelurahan")
+}
+
+model StatistikPns {
+  id                  Int      @id @default(autoincrement())
+  tahun               Int      @unique
+  totalPns            Int
+  pria                Int
+  wanita              Int
+  golonganTerbanyak   String?
+  pendidikanTerbanyak String?
+  isActive            Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("statistik_pns")
+}
+
+model RealisasiAnggaran {
+  id             Int      @id @default(autoincrement())
+  tahun          Int      @unique
+  targetAnggaran Decimal  @db.Decimal(15, 2)
+  nilaiRealisasi Decimal  @db.Decimal(15, 2)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("realisasi_anggaran")
+}
+
+enum KategoriWilayah {
+  DESA
+  KELURAHAN
+}
