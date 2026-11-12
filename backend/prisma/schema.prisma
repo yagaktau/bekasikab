@@ -30,13 +30,13 @@ model Pimpinan {
   id          Int      @id @default(autoincrement())
   namaLengkap String
   jabatan     String
-  periode     String
-  fotoUrl     String?
+  periode     String?
+  fotoUrl     String?  @db.Text
+  bio         String?  @db.Text
   urutan      Int      @default(0)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  bio         String?  @db.Text
 
   @@map("pimpinan")
 }

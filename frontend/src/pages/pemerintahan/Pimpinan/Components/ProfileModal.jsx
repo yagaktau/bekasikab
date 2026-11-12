@@ -47,7 +47,7 @@ export default function ProfileModal({ leader, onClose }) {
               )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                 {leader.extraInfo.map((info, idx) => (
+                 {leader.extraInfo && leader.extraInfo.map((info, idx) => (
                    <div key={idx} className="bg-gray-50 p-4 rounded-xl border border-gray-100 shadow-sm">
                      <h4 className="text-16 font-bold text-gov-navy mb-3">{info.title}</h4>
                      <ul className="list-disc list-outside pl-5 text-14 text-gray-700 space-y-1.5">

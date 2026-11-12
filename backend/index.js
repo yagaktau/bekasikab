@@ -13,9 +13,20 @@ const PORT = process.env.PORT || 5000;
 // Rahasia untuk token JWT
 const JWT_SECRET = process.env.JWT_SECRET || "rahasia_default_dev_123";
 
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
+
+// Otomatis membuat folder "uploads" jika belum ada
+const uploadDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+
 // Middleware Dasar
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ==========================================
 // 1. ENDPOINT AUTH & MIDDLEWARE
@@ -136,6 +147,33 @@ app.get("/api/pimpinan", async (req, res) => {
 // ==========================================
 // 3. ENDPOINT ADMIN (Dengan Gembok authenticateAdmin)
 // ==========================================
+
+// Konfigurasi penyimpanan foto
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads");
+  },
+  filename: function (req, file, cb) {
+    // Memberi nama unik pada foto dengan tanggal/waktu + ekstensi aslinya
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+const upload = multer({ storage: storage });
+
+// Endpoint Khusus Upload Gambar
+app.post(
+  "/api/admin/upload",
+  authenticateAdmin,
+  upload.single("image"),
+  (req, res) => {
+    if (!req.file)
+      return res.status(400).json({ message: "Tidak ada file yang diunggah" });
+
+    // Mengembalikan URL foto yang baru saja diupload
+    const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+    res.json({ imageUrl });
+  },
+);
 
 // --- CRUD PIMPINAN ---
 app.post("/api/admin/pimpinan", authenticateAdmin, async (req, res) => {
@@ -327,12 +365,10 @@ app.post(
       const newAnggaran = await prisma.realisasiAnggaran.create({
         data: { year: parseInt(year), amount: BigInt(amount) },
       });
-      res
-        .status(201)
-        .json({
-          message: "Anggaran ditambahkan",
-          data: { ...newAnggaran, amount: newAnggaran.amount.toString() },
-        });
+      res.status(201).json({
+        message: "Anggaran ditambahkan",
+        data: { ...newAnggaran, amount: newAnggaran.amount.toString() },
+      });
     } catch (error) {
       res.status(500).json({ message: "Error", error });
     }

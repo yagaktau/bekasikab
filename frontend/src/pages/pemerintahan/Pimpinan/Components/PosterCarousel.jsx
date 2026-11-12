@@ -58,7 +58,7 @@ export default function PosterCarousel({ dataPimpinan = [], onSelectLeader }) {
               {/* Text Un-skew Wrapper */}
               <div className="absolute inset-0 p-6 md:p-8 flex flex-col justify-between z-10 pointer-events-none skew-x-[8deg]">
                 <div className="text-center transform transition-transform duration-500 group-hover:translate-y-2 mt-4">
-                  <h2 className="text-24 md:text-32 font-black text-transparent bg-clip-text bg-gradient-to-r from-bekasi-gold to-yellow-200 uppercase tracking-widest drop-shadow-lg">
+                  <h2 className="text-24 md:text-28 font-black text-transparent bg-clip-text bg-gradient-to-r from-bekasi-gold to-yellow-200 uppercase tracking-widest drop-shadow-lg">
                     {/* 4. Gunakan properti 'jabatan' dari database */}
                     {leader.jabatan}
                   </h2>

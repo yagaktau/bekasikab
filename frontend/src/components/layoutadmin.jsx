@@ -1,8 +1,8 @@
 import React from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Map, FileText, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, Home, FileText, Settings, LogOut } from 'lucide-react';
 
-export default function layoutadmin() {
+export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -14,8 +14,8 @@ export default function layoutadmin() {
 
   const menuItems = [
     { name: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
-    { name: 'Pimpinan', icon: <Users size={20} />, path: '/admin/pimpinan' },
-    { name: 'Kecamatan', path: '/admin/kecamatan' },
+    { name: 'Pimpinan', icon: <Users size={20} />, path: '/admin/Pimpinan' },
+    { name: 'Kecamatan', icon: <Home size={20} />, path: '/admin/kecamatan' },
     { name: 'Halaman & Profil', icon: <FileText size={20} />, path: '/admin/pages' },
     { name: 'Pengaturan', icon: <Settings size={20} />, path: '/admin/settings' },
   ];

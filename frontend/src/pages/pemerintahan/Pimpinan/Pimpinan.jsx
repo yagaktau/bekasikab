@@ -14,11 +14,33 @@ export default function Pimpinan() {
   useEffect(() => {
     window.scrollTo(0, 0);
 
+    const currentIP = window.location.hostname;
+    const apiUrl = `http://${currentIP}:5000/api/pimpinan`;
+
     // 2. Fetch data dari API Express.js
-    fetch('http://localhost:5000/api/pimpinan')
+    fetch(apiUrl)
       .then((res) => res.json())
       .then((data) => {
-        setDataPimpinan(data);
+        
+        // === JURUS SAPU JAGAT: PAKSA URL FOTO ===
+        const dataFotoValid = data.map((item) => {
+          if (!item.fotoUrl) return item; // Abaikan jika tidak ada foto
+          
+          // Ambil HANYA nama file fotonya saja (misal: "173139829.jpg")
+          const namaFile = item.fotoUrl.substring(item.fotoUrl.lastIndexOf('/') + 1);
+          
+          // Rakit ulang URL fotonya menggunakan IP yang sedang dipakai HP/Laptop
+          const urlBaru = `http://${currentIP}:5000/uploads/${namaFile}`;
+          
+          return {
+            ...item,
+            fotoUrl: urlBaru
+          };
+        });
+
+        setDataPimpinan(dataFotoValid); // Gunakan data yang sudah dirakit ulang
+        // ========================================
+
         setIsLoading(false);
       })
       .catch((err) => {
