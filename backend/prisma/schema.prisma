@@ -33,6 +33,11 @@ model Pimpinan {
   periode     String?
   fotoUrl     String?  @db.Text
   bio         String?  @db.Text
+  tempatTanggalLahir String?
+  riwayatPendidikan  String?  @db.Text
+  karirPolitik       String?  @db.Text
+  riwayatPangkat     String?  @db.Text
+  riwayatDiklat      String?  @db.Text
   urutan      Int      @default(0)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
@@ -102,4 +107,16 @@ model RealisasiAnggaran {
 enum KategoriWilayah {
   DESA
   KELURAHAN
+}
+
+model NodeStruktur {
+  id        String  @id 
+  jabatan   String
+  nama      String
+  posX      Float
+  posY      Float
+  parentId  String? 
+  sourceHandle String?
+  targetHandle String?
+  tipeGaris    String? @default("komando")
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Home, FileText, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, Home, Network, Settings, LogOut } from 'lucide-react';
 
 export default function AdminLayout() {
   const navigate = useNavigate();
@@ -16,7 +16,7 @@ export default function AdminLayout() {
     { name: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
     { name: 'Pimpinan', icon: <Users size={20} />, path: '/admin/Pimpinan' },
     { name: 'Kecamatan', icon: <Home size={20} />, path: '/admin/kecamatan' },
-    { name: 'Halaman & Profil', icon: <FileText size={20} />, path: '/admin/pages' },
+    { name: 'Struktur', icon: <Network size={20} />, path: '/admin/struktur' },
     { name: 'Pengaturan', icon: <Settings size={20} />, path: '/admin/settings' },
   ];
 
@@ -32,7 +32,8 @@ export default function AdminLayout() {
 
         <nav className="flex-1 py-6 flex flex-col gap-2 px-4">
           {menuItems.map((item) => {
-            const isActive = location.pathname === item.path;
+            // Pengecekan aktif berdasarkan path
+            const isActive = location.pathname.toLowerCase() === item.path.toLowerCase();
             return (
               <Link
                 key={item.name}
@@ -71,7 +72,7 @@ export default function AdminLayout() {
         </header>
 
         {/* Area Konten Dinamis */}
-        <div className="flex-1 overflow-auto p-8">
+        <div className="flex-1 overflow-auto p-8 bg-[#f8f9fa]">
           <Outlet /> 
         </div>
       </main>

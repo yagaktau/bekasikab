@@ -18,8 +18,9 @@ import DaftarPerangkat from './pages/pemerintahan/Daftar/DaftarPerangkat';
 
 // Import Login Admin
 import AdminLogin from './pages/admin/Login'; 
-import AdminLayout from './components/layoutadmin'; // Layout khusus untuk halaman admin
-import AdminPimpinan from './pages/admin/Pimpinan'; // Contoh halaman admin untuk pimpinan
+import AdminLayout from './components/layoutadmin'; 
+import AdminPimpinan from './pages/admin/Pimpinan';
+import AdminStruktur from './pages/admin/AdminStruktur';
 
 // =======================================================
 // 1. LAYOUT PUBLIK (Untuk Pengunjung Web)
@@ -69,7 +70,7 @@ export default function App() {
           {/* Nanti rute CRUD pimpinan dll masuk ke sini */}
           
           <Route path="/admin/Pimpinan" element={<AdminPimpinan />} />
-          
+          <Route path="/admin/struktur" element={<AdminStruktur />} />
         </Route>
 
       </Routes>

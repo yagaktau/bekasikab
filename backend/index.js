@@ -178,35 +178,91 @@ app.post(
 // --- CRUD PIMPINAN ---
 app.post("/api/admin/pimpinan", authenticateAdmin, async (req, res) => {
   try {
-    const { namaLengkap, jabatan, periode, fotoUrl, bio, urutan } = req.body;
-    const newLeader = await prisma.pimpinan.create({
+    const {
+      namaLengkap,
+      jabatan,
+      periode,
+      fotoUrl,
+      bio,
+      urutan,
+      isActive,
+      tempatTanggalLahir,
+      riwayatPendidikan,
+      karirPolitik,
+      riwayatPangkat,
+      riwayatDiklat,
+    } = req.body;
+
+    const newPimpinan = await prisma.pimpinan.create({
       data: {
-        namaLengkap,
-        jabatan,
-        periode,
-        fotoUrl,
-        bio,
-        urutan: parseInt(urutan) || 0,
+        namaLengkap: namaLengkap,
+        jabatan: jabatan,
+        periode: periode || "",
+        fotoUrl: fotoUrl || "",
+        bio: bio || "",
+        urutan: urutan ? parseInt(urutan) : 0, // Dipaksa menjadi angka (Integer)
+        isActive: isActive !== undefined ? Boolean(isActive) : true, // Dipaksa menjadi Boolean
+        tempatTanggalLahir: tempatTanggalLahir || "",
+        riwayatPendidikan: riwayatPendidikan || "",
+        karirPolitik: karirPolitik || "",
+        riwayatPangkat: riwayatPangkat || "",
+        riwayatDiklat: riwayatDiklat || "",
       },
     });
-    res.status(201).json({ message: "Data ditambahkan", data: newLeader });
+
+    res.status(201).json(newPimpinan);
   } catch (error) {
-    res.status(500).json({ message: "Error", error });
+    // Ini akan mencetak alasan detail error di terminal jika masih gagal
+    console.error("DETAIL ERROR POST PIMPINAN:", error);
+    res
+      .status(500)
+      .json({ message: "Gagal menambah data pimpinan", error: error.message });
   }
 });
 
 app.put("/api/admin/pimpinan/:id", authenticateAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    const { namaLengkap, jabatan, periode, fotoUrl, bio, urutan, isActive } =
-      req.body;
-    const updatedLeader = await prisma.pimpinan.update({
-      where: { id: parseInt(id) },
-      data: { namaLengkap, jabatan, periode, fotoUrl, bio, urutan, isActive },
+    const {
+      namaLengkap,
+      jabatan,
+      periode,
+      fotoUrl,
+      bio,
+      urutan,
+      isActive,
+      tempatTanggalLahir,
+      riwayatPendidikan,
+      karirPolitik,
+      riwayatPangkat,
+      riwayatDiklat,
+    } = req.body;
+
+    const updatedPimpinan = await prisma.pimpinan.update({
+      where: { id: Number(id) },
+      data: {
+        namaLengkap,
+        jabatan,
+        periode: periode || "",
+        fotoUrl: fotoUrl || "",
+        bio: bio || "",
+        urutan: urutan ? parseInt(urutan) : 0,
+        isActive: isActive !== undefined ? Boolean(isActive) : true,
+        tempatTanggalLahir: tempatTanggalLahir || "",
+        riwayatPendidikan: riwayatPendidikan || "",
+        karirPolitik: karirPolitik || "",
+        riwayatPangkat: riwayatPangkat || "",
+        riwayatDiklat: riwayatDiklat || "",
+      },
     });
-    res.json({ message: "Data diperbarui", data: updatedLeader });
+
+    res.status(200).json(updatedPimpinan);
   } catch (error) {
-    res.status(500).json({ message: "Error", error });
+    console.error("DETAIL ERROR PUT PIMPINAN:", error);
+    res.status(500).json({
+      message: "Gagal mengupdate data pimpinan",
+      error: error.message,
+    });
   }
 });
 
@@ -442,6 +498,35 @@ app.delete("/api/admin/perangkat/:id", authenticateAdmin, async (req, res) => {
   try {
     await prisma.perangkat.delete({ where: { id: parseInt(req.params.id) } });
     res.json({ message: "Perangkat dihapus" });
+  } catch (error) {
+    res.status(500).json({ message: "Error", error });
+  }
+});
+
+// 1. Ambil data nodes untuk Pengunjung & Admin
+app.get("/api/struktur-nodes", async (req, res) => {
+  try {
+    const nodes = await prisma.nodeStruktur.findMany();
+    res.json(nodes);
+  } catch (error) {
+    res.status(500).json({ message: "Error", error });
+  }
+});
+
+// 2. Simpan layout nodes (Khusus Admin)
+app.post("/api/admin/struktur-nodes", async (req, res) => {
+  // Catatan: Jika ada middleware authenticateAdmin, masukkan sebelum async (req, res)
+  try {
+    const { nodes } = req.body;
+
+    // Hapus semua layout lama, timpa dengan layout baru
+    await prisma.nodeStruktur.deleteMany();
+
+    if (nodes && nodes.length > 0) {
+      await prisma.nodeStruktur.createMany({ data: nodes });
+    }
+
+    res.json({ message: "Layout Struktur berhasil disimpan!" });
   } catch (error) {
     res.status(500).json({ message: "Error", error });
   }
