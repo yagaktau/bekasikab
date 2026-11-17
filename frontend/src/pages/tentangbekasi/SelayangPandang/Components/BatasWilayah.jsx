@@ -28,7 +28,7 @@ function BatasPointer({ item }) {
       ) : (
         <>
           <div className="h-0.5 flex-1 bg-bekasi-green" />
-          <line x1="0" y1="50%" x2="37.5%" y2="2%" stroke="currentColor" strokeWidth="2" />
+          {/* Tag <line ... /> yang bikin error sudah kita hapus dari sini */}
           <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-bekasi-green" />
         </>
       )}

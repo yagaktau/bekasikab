@@ -15,10 +15,10 @@ const JabatanNode = ({ data }) => (
   <div className="bg-white border-2 border-[#0B5D34] rounded-lg p-3 md:p-4 shadow-lg min-w-[180px] md:min-w-[220px] text-center relative">
     
     {/* Titik penghubung transparan agar garis bisa nyambung */}
-    <Handle type="target" position={Position.Top} id="top" className="opacity-0 w-1 h-1" />
-    <Handle type="target" position={Position.Left} id="left" className="opacity-0 w-1 h-1" />
-    <Handle type="source" position={Position.Bottom} id="bottom" className="opacity-0 w-1 h-1" />
+    <Handle type="source" position={Position.Top} id="top" className="opacity-0 w-1 h-1" />
+    <Handle type="source" position={Position.Left} id="left" className="opacity-0 w-1 h-1" />
     <Handle type="source" position={Position.Right} id="right" className="opacity-0 w-1 h-1" />
+    <Handle type="source" position={Position.Bottom} id="bottom" className="opacity-0 w-1 h-1" />
 
     <div className="font-bold text-[#0B5D34] border-b border-gray-200 pb-2 mb-2 text-sm md:text-base">
       {data.jabatan}
@@ -69,60 +69,58 @@ export default function StrukturContent() {
   const [defaultNodes, setDefaultNodes] = useState([]); 
 
   useEffect(() => {
-    // Mengambil data posisi kotak dari database
-    fetch('http://localhost:5000/api/struktur-nodes') // Sesuaikan dengan PORT backend
-      .then(res => res.json())
-      .then(data => {
-        if (!data || data.length === 0) return;
+    const fetchStrukturPublic = async () => {
+      try {
+        // Ambil data dari backend (bisa pakai axios biasa karena ini jalur publik)
+        // Sesuaikan import API/axios jika berbeda
+        const response = await fetch(`http://${window.location.hostname}:5000/api/struktur-nodes`);
+        const rawData = await response.json();
 
-        const flowNodes = data.map(item => ({
-          id: item.id,
-          type: 'jabatan',
-          position: { x: item.posX, y: item.posY },
-          data: { jabatan: item.jabatan, nama: item.nama }
-        }));
-        
-        const flowEdges = [];
-        data.forEach(item => {
-          if (!item.parentId) return;
-          try {
-            const parsedEdges = JSON.parse(item.parentId);
-            if (Array.isArray(parsedEdges)) {
-              parsedEdges.forEach((edge, idx) => {
-                const isKoordinasi = edge.tipeGaris === 'koordinasi';
-                flowEdges.push({
-                  id: `e-${edge.source}-${item.id}-${idx}`,
-                  source: edge.source,
+        if (rawData && rawData.length > 0) {
+          // 1. Kembalikan format Kotak (Nodes)
+          const fetchedNodes = rawData.map(item => ({
+            id: item.id,
+            position: { x: item.posX, y: item.posY },
+            data: { jabatan: item.jabatan, nama: item.nama },
+            type: 'jabatan'
+          }));
+
+          // 2. Kembalikan format Garis (Edges) dari JSON yang kita simpan di parentId
+          const fetchedEdges = [];
+          rawData.forEach(item => {
+            if (item.parentId) {
+              const incomingEdges = JSON.parse(item.parentId);
+              incomingEdges.forEach(edgeData => {
+                
+                const isKoordinasi = edgeData.tipeGaris === 'koordinasi';
+
+                fetchedEdges.push({
+                  id: `e-${edgeData.source}-${item.id}`,
+                  source: edgeData.source,
                   target: item.id,
-                  sourceHandle: edge.sourceHandle,
-                  targetHandle: edge.targetHandle,
-                  type: 'smoothstep',
-                  animated: true,
+                  sourceHandle: edgeData.sourceHandle,
+                  targetHandle: edgeData.targetHandle,
+                  type: 'smoothstep', // Bentuk Siku-siku
                   style: {
-                    stroke: isKoordinasi ? '#f59e0b' : '#0B5D34',
                     strokeWidth: 2,
+                    stroke: isKoordinasi ? '#f59e0b' : '#2563eb', // Oranye (koordinasi) & Biru (komando)
                     strokeDasharray: isKoordinasi ? '5,5' : 'none'
                   }
                 });
               });
             }
-          } catch (e) {
-            flowEdges.push({
-              id: `e-${item.parentId}-${item.id}`,
-              source: item.parentId,
-              target: item.id,
-              type: 'smoothstep',
-              animated: true,
-              style: { stroke: '#0B5D34', strokeWidth: 2 }
-            });
-          }
-        });
+          });
 
-        setNodes(flowNodes);
-        setEdges(flowEdges);
-        setDefaultNodes(flowNodes); 
-      })
-      .catch(err => console.error("Gagal mengambil data struktur:", err));
+          // Masukkan ke state React Flow
+          setNodes(fetchedNodes);
+          setEdges(fetchedEdges);
+        }
+      } catch (error) {
+        console.error("Gagal mengambil data struktur organisasi:", error);
+      }
+    };
+
+    fetchStrukturPublic();
   }, []);
 
   const onNodesChange = useCallback(
@@ -158,22 +156,52 @@ export default function StrukturContent() {
           </button>
         </div>
         
-        {/* Canvas React Flow */}
-        <div className="w-full bg-[#f8f9fa] rounded-xl flex items-center justify-center h-[400px] md:h-[500px] border-2 border-slate-200 overflow-hidden shadow-inner">
-          <ReactFlow 
-            nodes={nodes} 
-            edges={edges} 
-            onNodesChange={onNodesChange}
-            nodeTypes={nodeTypes}
-            fitView 
-            minZoom={0.2}
-            maxZoom={2}
-            attributionPosition="bottom-left"
-            connectionMode={ConnectionMode.Loose}
-          >
-            <Background color="#ccc" gap={16} />
-            <Controls />
-          </ReactFlow>
+       {/* Canvas React Flow */}
+        <div className="relative w-full bg-[#f8f9fa] rounded-xl flex items-center justify-center h-[400px] md:h-[500px] border-2 border-slate-200 overflow-hidden shadow-inner">
+          
+          {/* CEGAH BLANK: Render ReactFlow HANYA jika node sudah ada isinya */}
+          {nodes.length > 0 ? (
+            <ReactFlow 
+              nodes={nodes} 
+              edges={edges} 
+              onNodesChange={onNodesChange}
+              nodeTypes={nodeTypes}
+              fitView 
+              minZoom={0.2}
+              maxZoom={2}
+              attributionPosition="bottom-left"
+              connectionMode={ConnectionMode.Loose}
+            >
+              <Background color="#ccc" gap={16} />
+              <Controls />
+            </ReactFlow>
+          ) : (
+            <div className="text-slate-500 font-medium animate-pulse">Memuat Struktur Organisasi...</div>
+          )}
+
+          {/* KETERANGAN GARIS (LEGEND) TETAP DI SINI */}
+          <div style={{
+            position: 'absolute', 
+            bottom: '20px', 
+            left: '20px', 
+            backgroundColor: 'white', 
+            padding: '10px 15px', 
+            borderRadius: '8px', 
+            boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+            zIndex: 10
+          }}>
+            <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: 'bold' }}>Keterangan:</h4>
+            
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+              <div style={{ width: '30px', borderBottom: '2px solid #000', marginRight: '10px' }}></div>
+              <span style={{ fontSize: '12px' }}>Garis Komando</span>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div style={{ width: '30px', borderBottom: '2px dashed #000', marginRight: '10px' }}></div>
+              <span style={{ fontSize: '12px' }}>Garis Koordinasi</span>
+            </div>
+          </div>
         </div>
       </section>
 

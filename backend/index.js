@@ -68,10 +68,15 @@ const authenticateAdmin = (req, res, next) => {
       .json({ message: "Akses ditolak. Token tidak ditemukan." });
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err)
+    if (err) {
+      // ===== TAMBAHAN UNTUK DEBUGGING =====
+      console.log("❌ TOKEN DITOLAK KARENA:", err.message);
+      console.log("👉 BENTUK TOKEN YANG DITERIMA:", token);
+      // ====================================
       return res
         .status(403)
         .json({ message: "Sesi telah habis atau token tidak valid." });
+    }
     req.user = user;
     next();
   });
@@ -92,42 +97,64 @@ app.get("/api/pages/:slug", async (req, res) => {
   }
 });
 
-app.get("/api/kecamatan", async (req, res) => {
-  try {
-    res.json(await prisma.kecamatan.findMany({ orderBy: { title: "asc" } }));
-  } catch (error) {
-    res.status(500).json({ message: "Error", error });
-  }
-});
-
 app.get("/api/datapns", async (req, res) => {
   try {
-    const data = await prisma.dataPNS.findFirst();
-    if (!data) return res.status(200).json(null);
-    res.json(data);
+    // 1. Panggil nama tabel yang benar: statistikPns
+    const data = await prisma.statistikPns.findFirst({
+      orderBy: { tahun: "desc" }, // Ambil data tahun terbaru
+    });
+
+    // 2. Kalau database masih kosong, kembalikan nilai default 0
+    if (!data) {
+      return res.json({
+        total: 0,
+        lakiLaki: 0,
+        perempuan: 0,
+        golongan: [],
+        golonganJumlah: [],
+        pendidikan: [],
+        pendidikanJumlah: [],
+      });
+    }
+
+    // 3. Sesuaikan nama kolom database dengan yang dibutuhkan frontend
+    res.json({
+      total: data.totalPns,
+      lakiLaki: data.pria,
+      perempuan: data.wanita,
+      // Karena di schema hanya ada kolom tunggal, kita jadikan array agar frontend tidak error
+      golongan: data.golonganTerbanyak ? [data.golonganTerbanyak] : [],
+      golonganJumlah: [0],
+      pendidikan: data.pendidikanTerbanyak ? [data.pendidikanTerbanyak] : [],
+      pendidikanJumlah: [0],
+    });
   } catch (error) {
-    res.status(500).json({ message: "Error", error });
+    console.error("Error GET Data PNS:", error);
+    res.status(500).json({ message: "Error Data PNS", error: error.message });
   }
 });
 
 app.get("/api/realisasi-anggaran", async (req, res) => {
   try {
+    // 1. Ubah year menjadi tahun
     const data = await prisma.realisasiAnggaran.findMany({
-      orderBy: { year: "asc" },
+      orderBy: { tahun: "asc" },
     });
+
+    if (!data || data.length === 0) {
+      return res.json([]);
+    }
+
+    // 2. Sesuaikan map dengan nama kolom yang ada di database
     res.json(
-      data.map((item) => ({ year: item.year, amount: item.amount.toString() })),
+      data.map((item) => ({
+        year: item.tahun,
+        amount: item.nilaiRealisasi ? item.nilaiRealisasi.toString() : "0",
+      })),
     );
   } catch (error) {
-    res.status(500).json({ message: "Error", error });
-  }
-});
-
-app.get("/api/perangkat", async (req, res) => {
-  try {
-    res.json(await prisma.perangkat.findMany({ orderBy: { name: "asc" } }));
-  } catch (error) {
-    res.status(500).json({ message: "Error", error });
+    console.error("Error GET Realisasi Anggaran:", error);
+    res.status(500).json({ message: "Error Anggaran", error: error.message });
   }
 });
 
@@ -148,14 +175,13 @@ app.get("/api/pimpinan", async (req, res) => {
 // 3. ENDPOINT ADMIN (Dengan Gembok authenticateAdmin)
 // ==========================================
 
-// Konfigurasi penyimpanan foto
+// Konfigurasi penyimpanan foto (Versi Baru)
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "./uploads");
+    cb(null, "uploads/");
   },
   filename: function (req, file, cb) {
-    // Memberi nama unik pada foto dengan tanggal/waktu + ekstensi aslinya
-    cb(null, Date.now() + path.extname(file.originalname));
+    cb(null, Date.now() + "_" + file.originalname.replace(/\s+/g, "-"));
   },
 });
 const upload = multer({ storage: storage });
@@ -311,103 +337,267 @@ app.delete("/api/admin/pages/:id", authenticateAdmin, async (req, res) => {
 });
 
 // --- CRUD KECAMATAN ---
-app.post("/api/admin/kecamatan", authenticateAdmin, async (req, res) => {
+// 1. GET: Ambil semua data Kecamatan beserta relasi Desa/Kelurahannya
+app.get("/api/kecamatan", async (req, res) => {
   try {
-    const { title, area, population, description, image, mapUrl } = req.body;
+    const data = await prisma.kecamatan.findMany({
+      include: { desaKelurahan: true },
+      orderBy: { id: "desc" },
+    });
+
+    const mappedData = data.map((item) => {
+      const listKelurahan =
+        item.desaKelurahan
+          ?.filter((dk) => dk.kategori === "KELURAHAN")
+          .map((dk) => dk.namaWilayah) || [];
+
+      const listDesa =
+        item.desaKelurahan
+          ?.filter((dk) => dk.kategori === "DESA")
+          .map((dk) => dk.namaWilayah) || [];
+
+      return {
+        ...item,
+        namaKecamatan: item.title,
+        namaKelurahan: listKelurahan,
+        namaDesa: listDesa,
+        foto: item.gambar,
+      };
+    });
+
+    res.json(mappedData);
+  } catch (error) {
+    console.error("Error GET Kecamatan:", error);
+    res.status(500).json({ error: "Gagal mengambil data kecamatan" });
+  }
+});
+
+// 2. POST: Tambah data Kecamatan baru
+app.post("/api/kecamatan", upload.single("foto"), async (req, res) => {
+  const { namaKecamatan, namaKelurahan, namaDesa } = req.body;
+  const foto = req.file
+    ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
+    : null;
+
+  try {
+    const arrayKelurahan = namaKelurahan ? JSON.parse(namaKelurahan) : [];
+    const arrayDesa = namaDesa ? JSON.parse(namaDesa) : [];
+
+    const dataRelasi = [
+      ...arrayKelurahan.map((nama) => ({
+        namaWilayah: nama,
+        kategori: "KELURAHAN",
+      })),
+      ...arrayDesa.map((nama) => ({ namaWilayah: nama, kategori: "DESA" })),
+    ];
+
     const newKecamatan = await prisma.kecamatan.create({
-      data: { title, area, population, description, image, mapUrl },
+      data: {
+        title: namaKecamatan,
+        isi: "",
+        website: "",
+        gambar: foto,
+        ...(dataRelasi.length > 0 && {
+          desaKelurahan: {
+            create: dataRelasi,
+          },
+        }),
+      },
+      include: { desaKelurahan: true },
     });
-    res
-      .status(201)
-      .json({ message: "Kecamatan ditambahkan", data: newKecamatan });
+
+    res.status(201).json(newKecamatan);
   } catch (error) {
-    res.status(500).json({ message: "Error", error });
+    console.error("Error Tambah Kecamatan:", error);
+    res.status(500).json({ error: "Gagal menambah data kecamatan" });
   }
 });
 
-app.put("/api/admin/kecamatan/:id", authenticateAdmin, async (req, res) => {
+// 3. PUT: Edit data Kecamatan, Kelurahan, Desa, & Foto
+app.put("/api/kecamatan/:id", upload.single("foto"), async (req, res) => {
+  const { id } = req.params;
+  const { namaKecamatan, namaKelurahan, namaDesa } = req.body;
+
   try {
-    const { title, area, population, description, image, mapUrl } = req.body;
+    const arrayKelurahan = namaKelurahan ? JSON.parse(namaKelurahan) : [];
+    const arrayDesa = namaDesa ? JSON.parse(namaDesa) : [];
+
+    const dataRelasi = [
+      ...arrayKelurahan.map((nama) => ({
+        namaWilayah: nama,
+        kategori: "KELURAHAN",
+      })),
+      ...arrayDesa.map((nama) => ({ namaWilayah: nama, kategori: "DESA" })),
+    ];
+
+    const updateData = {
+      title: namaKecamatan,
+      desaKelurahan: {
+        deleteMany: {}, // Hapus daftar lama lalu ganti dengan daftar terbaru
+        ...(dataRelasi.length > 0 && {
+          create: dataRelasi,
+        }),
+      },
+    };
+
+    // Jika admin mengunggah foto baru, perbarui foto; jika tidak, pertahankan foto lama
+    if (req.file) {
+      updateData.gambar = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+    }
+
     const updatedKecamatan = await prisma.kecamatan.update({
-      where: { id: parseInt(req.params.id) },
-      data: { title, area, population, description, image, mapUrl },
+      where: { id: Number(id) },
+      data: updateData,
+      include: { desaKelurahan: true },
     });
-    res.json({ message: "Kecamatan diperbarui", data: updatedKecamatan });
+
+    res.json(updatedKecamatan);
   } catch (error) {
-    res.status(500).json({ message: "Error", error });
+    console.error("Error Edit Kecamatan:", error);
+    res.status(500).json({ error: "Gagal memperbarui data kecamatan" });
   }
 });
 
-app.delete("/api/admin/kecamatan/:id", authenticateAdmin, async (req, res) => {
+// 4. DELETE: Hapus data Kecamatan
+app.delete("/api/kecamatan/:id", async (req, res) => {
+  const { id } = req.params;
   try {
-    await prisma.kecamatan.delete({ where: { id: parseInt(req.params.id) } });
-    res.json({ message: "Kecamatan dihapus" });
+    await prisma.kecamatan.delete({
+      where: { id: Number(id) },
+    });
+    res.json({ message: "Data berhasil dihapus" });
   } catch (error) {
-    res.status(500).json({ message: "Error", error });
+    console.error(error);
+    res.status(500).json({ error: "Gagal menghapus data kecamatan" });
   }
 });
 
 // --- CRUD DATA PNS ---
-app.post("/api/admin/datapns", authenticateAdmin, async (req, res) => {
+// 1. GET PUBLIC (Untuk Halaman Pengunjung DataPNS.jsx)
+app.get("/api/datapns", async (req, res) => {
   try {
-    const {
-      total,
-      lakiLaki,
-      perempuan,
-      golongan,
-      golonganJumlah,
-      pendidikan,
-      pendidikanJumlah,
-    } = req.body;
-    const existing = await prisma.dataPNS.findFirst();
-    if (existing)
-      return res
-        .status(400)
-        .json({ message: "Data PNS sudah ada, gunakan PUT." });
-
-    const newData = await prisma.dataPNS.create({
-      data: {
-        total,
-        lakiLaki,
-        perempuan,
-        golongan,
-        golonganJumlah,
-        pendidikan,
-        pendidikanJumlah,
-      },
+    const data = await prisma.statistikPns.findFirst({
+      orderBy: { id: "desc" },
     });
-    res.status(201).json({ message: "Data PNS dibuat", data: newData });
+
+    if (!data) {
+      return res.json({
+        total: 0,
+        lakiLaki: 0,
+        perempuan: 0,
+        golongan: "Belum Ada",
+        golonganJumlah: 0,
+        pendidikan: "Belum Ada",
+        pendidikanJumlah: 0,
+      });
+    }
+
+    // Menghitung otomatis Golongan dengan jumlah orang tertinggi dari JSON array
+    let maxGol = { nama: "Belum Ada", jumlah: 0 };
+    if (data.golongan && Array.isArray(data.golongan)) {
+      data.golongan.forEach((g) => {
+        if (Number(g.jumlah) > maxGol.jumlah)
+          maxGol = { nama: g.nama, jumlah: Number(g.jumlah) };
+      });
+    }
+
+    // Menghitung otomatis Pendidikan dengan jumlah orang tertinggi dari JSON array
+    let maxPend = { tingkat: "Belum Ada", jumlah: 0 };
+    if (data.pendidikan && Array.isArray(data.pendidikan)) {
+      data.pendidikan.forEach((p) => {
+        if (Number(p.jumlah) > maxPend.jumlah)
+          maxPend = { tingkat: p.tingkat, jumlah: Number(p.jumlah) };
+      });
+    }
+
+    res.json({
+      total: data.totalPns,
+      lakiLaki: data.lakiLaki,
+      perempuan: data.perempuan,
+      golongan: maxGol.nama,
+      golonganJumlah: maxGol.jumlah,
+      pendidikan: maxPend.tingkat,
+      pendidikanJumlah: maxPend.jumlah,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Error", error });
+    console.error(error);
+    res.status(500).json({ message: "Error Data PNS", error: error.message });
   }
 });
 
-app.put("/api/admin/datapns/:id", authenticateAdmin, async (req, res) => {
+// 2. GET ADMIN (Ambil list semua rekap periode PNS)
+app.get("/api/admin/datapns", authenticateAdmin, async (req, res) => {
   try {
-    const {
-      total,
-      lakiLaki,
-      perempuan,
-      golongan,
-      golonganJumlah,
-      pendidikan,
-      pendidikanJumlah,
-    } = req.body;
-    const updatedData = await prisma.dataPNS.update({
-      where: { id: parseInt(req.params.id) },
+    const data = await prisma.statistikPns.findMany({
+      orderBy: { id: "desc" },
+    });
+    const formattedData = data.map((d) => ({
+      id: d.id,
+      periode: d.periode,
+      totalPNS: d.totalPns,
+      lakiLaki: d.lakiLaki,
+      perempuan: d.perempuan,
+      golongan: d.golongan || [],
+      pendidikan: d.pendidikan || [],
+    }));
+    res.json(formattedData);
+  } catch (error) {
+    res.status(500).json({ message: "Error", error: error.message });
+  }
+});
+
+// 3. POST (Tambah Data)
+app.post("/api/admin/datapns", authenticateAdmin, async (req, res) => {
+  try {
+    const { periode, totalPNS, lakiLaki, perempuan, golongan, pendidikan } =
+      req.body;
+    const newData = await prisma.statistikPns.create({
       data: {
-        total,
-        lakiLaki,
-        perempuan,
+        periode,
+        totalPns: Number(totalPNS),
+        lakiLaki: Number(lakiLaki),
+        perempuan: Number(perempuan),
         golongan,
-        golonganJumlah,
         pendidikan,
-        pendidikanJumlah,
       },
     });
-    res.json({ message: "Data PNS diperbarui", data: updatedData });
+    res.status(201).json(newData);
   } catch (error) {
-    res.status(500).json({ message: "Error", error });
+    res.status(500).json({ message: "Error", error: error.message });
+  }
+});
+
+// 4. PUT (Edit Data)
+app.put("/api/admin/datapns/:id", authenticateAdmin, async (req, res) => {
+  try {
+    const { periode, totalPNS, lakiLaki, perempuan, golongan, pendidikan } =
+      req.body;
+    const updatedData = await prisma.statistikPns.update({
+      where: { id: parseInt(req.params.id) },
+      data: {
+        periode,
+        totalPns: Number(totalPNS),
+        lakiLaki: Number(lakiLaki),
+        perempuan: Number(perempuan),
+        golongan,
+        pendidikan,
+      },
+    });
+    res.json(updatedData);
+  } catch (error) {
+    res.status(500).json({ message: "Error", error: error.message });
+  }
+});
+
+// 5. DELETE (Hapus Data)
+app.delete("/api/admin/datapns/:id", authenticateAdmin, async (req, res) => {
+  try {
+    await prisma.statistikPns.delete({
+      where: { id: parseInt(req.params.id) },
+    });
+    res.json({ message: "Data PNS berhasil dihapus" });
+  } catch (error) {
+    res.status(500).json({ message: "Error", error: error.message });
   }
 });
 
@@ -467,72 +657,181 @@ app.delete(
 );
 
 // --- CRUD DAFTAR PERANGKAT ---
+// 1. GET: Ambil semua data (Bisa diakses publik tanpa login)
+app.get("/api/perangkat", async (req, res) => {
+  try {
+    const data = await prisma.perangkatDaerah.findMany({
+      orderBy: { id: "desc" },
+    });
+
+    const mappedData = data.map((item) => ({
+      ...item,
+      name: item.namaInstansi,
+      website: item.websiteUrl,
+    }));
+    res.json(mappedData);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Gagal mengambil data perangkat" });
+  }
+});
+
+// 2. POST: Tambah data baru (Hanya Admin)
 app.post("/api/admin/perangkat", authenticateAdmin, async (req, res) => {
   try {
-    const { name, email, website } = req.body;
-    const newPerangkat = await prisma.perangkat.create({
-      data: { name, email, website },
+    console.log("👉 DATA YANG MASUK DARI FORM:", req.body);
+    const { name, email, website, logo } = req.body;
+    const newPerangkat = await prisma.perangkatDaerah.create({
+      data: {
+        namaInstansi: name,
+        kategori: "Dinas",
+        email,
+        websiteUrl: website,
+        logo,
+      },
     });
     res
       .status(201)
       .json({ message: "Perangkat ditambahkan", data: newPerangkat });
   } catch (error) {
-    res.status(500).json({ message: "Error", error });
+    console.error("Error Tambah Perangkat:", error);
+    res.status(500).json({ message: "Error", error: error.message });
   }
 });
 
+// 3. PUT: Edit data (Hanya Admin)
 app.put("/api/admin/perangkat/:id", authenticateAdmin, async (req, res) => {
   try {
-    const { name, email, website } = req.body;
-    const updatedPerangkat = await prisma.perangkat.update({
+    const { name, email, website, logo } = req.body;
+    const updatedPerangkat = await prisma.perangkatDaerah.update({
       where: { id: parseInt(req.params.id) },
-      data: { name, email, website },
+      data: {
+        namaInstansi: name,
+        email,
+        websiteUrl: website,
+        logo,
+      },
     });
     res.json({ message: "Perangkat diperbarui", data: updatedPerangkat });
   } catch (error) {
-    res.status(500).json({ message: "Error", error });
+    res.status(500).json({ message: "Error", error: error.message });
   }
 });
 
+// 4. DELETE: Hapus data (Hanya Admin)
 app.delete("/api/admin/perangkat/:id", authenticateAdmin, async (req, res) => {
   try {
-    await prisma.perangkat.delete({ where: { id: parseInt(req.params.id) } });
+    await prisma.perangkatDaerah.delete({
+      where: { id: parseInt(req.params.id) },
+    });
     res.json({ message: "Perangkat dihapus" });
   } catch (error) {
-    res.status(500).json({ message: "Error", error });
+    res.status(500).json({ message: "Error", error: error.message });
   }
 });
 
-// 1. Ambil data nodes untuk Pengunjung & Admin
+// --- CRUD STRUKTUR ORGANISASI (NodeStruktur) ---
+
+// 1. GET: Ambil semua data struktur (Bisa diakses publik/admin)
 app.get("/api/struktur-nodes", async (req, res) => {
   try {
     const nodes = await prisma.nodeStruktur.findMany();
     res.json(nodes);
   } catch (error) {
-    res.status(500).json({ message: "Error", error });
+    res.status(500).json({ error: "Gagal mengambil data struktur" });
   }
 });
 
-// 2. Simpan layout nodes (Khusus Admin)
-app.post("/api/admin/struktur-nodes", async (req, res) => {
-  // Catatan: Jika ada middleware authenticateAdmin, masukkan sebelum async (req, res)
+// 2. POST: Tambah/Timpa data struktur baru (Hanya Admin)
+app.post("/api/admin/struktur-nodes", authenticateAdmin, async (req, res) => {
   try {
-    const { nodes } = req.body;
+    const { nodes } = req.body; // Menerima array 'nodes' dari frontend
 
-    // Hapus semua layout lama, timpa dengan layout baru
+    // Hapus semua data struktur yang lama di database
     await prisma.nodeStruktur.deleteMany();
 
+    // Simpan semua node layout yang baru secara massal (bulk insert)
     if (nodes && nodes.length > 0) {
-      await prisma.nodeStruktur.createMany({ data: nodes });
+      await prisma.nodeStruktur.createMany({
+        data: nodes,
+      });
     }
 
-    res.json({ message: "Layout Struktur berhasil disimpan!" });
+    res
+      .status(201)
+      .json({ message: "Layout struktur berhasil disimpan ke database" });
   } catch (error) {
-    res.status(500).json({ message: "Error", error });
+    console.error("Error POST Struktur:", error);
+    res
+      .status(500)
+      .json({ message: "Gagal menyimpan struktur", error: error.message });
   }
 });
 
+// 3. PUT: Update data struktur (Hanya Admin)
+app.put(
+  "/api/admin/struktur-nodes/:id",
+  authenticateAdmin,
+  async (req, res) => {
+    try {
+      const {
+        jabatan,
+        nama,
+        type,
+        position,
+        data,
+        posX,
+        posY,
+        parentId,
+        sourceHandle,
+        targetHandle,
+        tipeGaris,
+      } = req.body;
+
+      const updatedNode = await prisma.nodeStruktur.update({
+        where: { id: req.params.id }, // id bentuknya String berdasarkan schema
+        data: {
+          jabatan,
+          nama,
+          type,
+          position,
+          data,
+          posX: parseFloat(posX),
+          posY: parseFloat(posY),
+          parentId,
+          sourceHandle,
+          targetHandle,
+          tipeGaris,
+        },
+      });
+      res.json({ message: "Struktur diperbarui", data: updatedNode });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Gagal mengupdate struktur", error: error.message });
+    }
+  },
+);
+
+// 4. DELETE: Hapus data struktur (Hanya Admin)
+app.delete(
+  "/api/admin/struktur-nodes/:id",
+  authenticateAdmin,
+  async (req, res) => {
+    try {
+      await prisma.nodeStruktur.delete({
+        where: { id: req.params.id }, // id bentuknya String
+      });
+      res.json({ message: "Struktur dihapus" });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Gagal menghapus struktur", error: error.message });
+    }
+  },
+);
+
 // START SERVER
-app.listen(PORT, () => {
-  console.log(`🚀 Server backend siap di http://localhost:${PORT}`);
+app.listen(5000, "0.0.0.0", () => {
+  console.log("Server jalan di port 5000 dan terbuka untuk semua jaringan");
 });

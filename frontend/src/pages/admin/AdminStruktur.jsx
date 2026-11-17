@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import ReactFlow, { 
   Background, 
   Controls, 
@@ -10,11 +10,11 @@ import ReactFlow, {
   ConnectionMode
 } from 'reactflow';
 import 'reactflow/dist/style.css';
+import API from '../../services/api';
 
-// --- KOMPONEN KUSTOM KOTAK ADMIN (DENGAN TITIK PENGHUBUNG) ---
+// 1. KOMPONEN KOTAK (Wajib di luar)
 const AdminJabatanNode = ({ data }) => (
   <div className="bg-white border-2 border-blue-600 rounded-lg p-3 shadow-md min-w-[200px] text-center relative group">
-    
     <Handle type="source" position={Position.Top} id="top" className="w-3 h-3 bg-blue-600" />
     <Handle type="source" position={Position.Left} id="left" className="w-3 h-3 bg-blue-600" />
     <Handle type="source" position={Position.Right} id="right" className="w-3 h-3 bg-blue-600" />
@@ -29,18 +29,16 @@ const AdminJabatanNode = ({ data }) => (
   </div>
 );
 
-const nodeTypes = { jabatan: AdminJabatanNode };
-
 export default function AdminStruktur() {
+  // 2. KUNCI NODETYPES DI DALAM KOMPONEN PAKAI USEMEMO (Agar tidak dibaca ulang oleh React Flow)
+  const nodeTypes = useMemo(() => ({ jabatan: AdminJabatanNode }), []);
+
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [jenisGaris, setJenisGaris] = useState('komando');
-
-  // Form State
   const [formData, setFormData] = useState({ jabatan: '', nama: '' });
 
-  // 1. Ambil data saat pertama kali render
   useEffect(() => {
     fetch('http://localhost:5000/api/struktur-nodes')
       .then(res => res.json())
@@ -58,7 +56,6 @@ export default function AdminStruktur() {
         data.forEach(item => {
           if (!item.parentId) return;
           try {
-            // Bongkar kembali daftar garis dari JSON
             const parsedEdges = JSON.parse(item.parentId);
             if (Array.isArray(parsedEdges)) {
               parsedEdges.forEach((edge, idx) => {
@@ -79,7 +76,6 @@ export default function AdminStruktur() {
               });
             }
           } catch (e) {
-            // Fallback kalau masih ada data format lama
             flowEdges.push({
               id: `e-${item.parentId}-${item.id}`,
               source: item.parentId,
@@ -96,56 +92,47 @@ export default function AdminStruktur() {
       .catch(err => console.error("Gagal load data:", err));
   }, []);
 
-  // 2. Fungsi bawaan React Flow untuk geser dan hapus (Node & Edge)
   const onNodesChange = useCallback((changes) => setNodes((nds) => applyNodeChanges(changes, nds)), []);
   const onEdgesChange = useCallback((changes) => setEdges((eds) => applyEdgeChanges(changes, eds)), []);
+  
   const onConnect = useCallback(
     (params) => {
-      // Cek apakah jenis garis yang dipilih adalah koordinasi
       const isKoordinasi = jenisGaris === 'koordinasi';
-
       const newEdge = {
         ...params,
-        type: 'smoothstep', // Bikin garisnya siku-siku
+        type: 'smoothstep', 
         style: {
           strokeWidth: 2,
-          // Garis Komando = Biru, Koordinasi = Orange (biar beda dan jelas)
           stroke: isKoordinasi ? '#f59e0b' : '#2563eb', 
-          // Efek putus-putus untuk Koordinasi
           strokeDasharray: isKoordinasi ? '5,5' : 'none', 
         },
       };
       setEdges((eds) => addEdge(newEdge, eds));
     },
-    [jenisGaris, setEdges] // <-- Jangan lupa masukkan jenisGaris ke sini
+    [jenisGaris, setEdges]
   );
 
-  // 3. Tambah Kotak Baru
   const handleAddNode = (e) => {
     e.preventDefault();
     if (!formData.jabatan || !formData.nama) return alert("Isi Jabatan dan Nama dulu!");
 
     const newNode = {
-      id: `node-${Date.now()}`, // Bikin ID unik
+      id: `node-${Date.now()}`,
       type: 'jabatan',
-      position: { x: 50, y: 50 }, // Posisi default saat baru ditambah
+      position: { x: 50, y: 50 }, 
       data: { jabatan: formData.jabatan, nama: formData.nama }
     };
 
     setNodes((nds) => [...nds, newNode]);
-    setFormData({ jabatan: '', nama: '' }); // Reset form
+    setFormData({ jabatan: '', nama: '' }); 
   };
 
-  // 4. Simpan Layout ke Backend
   const handleSaveLayout = async () => {
     setIsSaving(true);
     try {
-      // Format ulang data agar sesuai dengan Prisma Schema
       const payloadNodes = nodes.map(node => {
-        // Ambil SEMUA garis yang masuk ke kotak ini (pakai .filter, bukan .find)
         const incomingEdges = edges.filter(e => e.target === node.id);
         
-        // Bungkus semua info garisnya jadi satu data JSON
         const edgesData = incomingEdges.map(e => ({
           source: e.source,
           sourceHandle: e.sourceHandle || 'bottom',
@@ -154,12 +141,11 @@ export default function AdminStruktur() {
         }));
 
         return {
-          id: node.id,
-          jabatan: node.data.jabatan,
-          nama: node.data.nama,
-          posX: node.position.x,
-          posY: node.position.y,
-          // Simpan semua garisnya dalam bentuk string JSON di parentId
+          id: String(node.id),
+          jabatan: node.data.jabatan || '',
+          nama: node.data.nama || '',
+          posX: node.position.x || 0,
+          posY: node.position.y || 0,
           parentId: edgesData.length > 0 ? JSON.stringify(edgesData) : null,
           sourceHandle: null,
           targetHandle: null,
@@ -167,21 +153,14 @@ export default function AdminStruktur() {
         };
       });
 
-      const response = await fetch('http://localhost:5000/api/admin/struktur-nodes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        // Kalau pakai token admin, tambahkan: 'Authorization': `Bearer ${token}`
-        body: JSON.stringify({ nodes: payloadNodes })
-      });
+      const response = await API.post('/admin/struktur-nodes', { nodes: payloadNodes });
 
-      if (response.ok) {
+      if (response.status === 200 || response.status === 201) {
         alert("Layout Struktur berhasil disimpan!");
-      } else {
-        alert("Gagal menyimpan layout");
       }
     } catch (error) {
-      console.error(error);
-      alert("Terjadi kesalahan sistem");
+      console.error("Gagal menyimpan:", error);
+      alert("Terjadi kesalahan sistem saat menyimpan struktur.");
     } finally {
       setIsSaving(false);
     }
@@ -205,7 +184,6 @@ export default function AdminStruktur() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* PANEL KIRI: FORM TAMBAH */}
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm h-fit">
           <h2 className="text-lg font-bold text-slate-800 mb-4">Tambah Jabatan</h2>
           <form onSubmit={handleAddNode} className="flex flex-col gap-4">
@@ -236,10 +214,8 @@ export default function AdminStruktur() {
               + Tambah ke Canvas
             </button>
 
-            {/* --- PILIHAN JENIS GARIS & KETERANGAN --- */}
             <div className="mt-6 border-t border-gray-200 pt-4">
               <h3 className="font-bold text-sm text-gray-800 mb-3">Jenis Garis Hubungan</h3>
-              
               <div className="flex flex-col gap-3">
                 <label className="flex items-center gap-2 text-sm cursor-pointer">
                   <input 
@@ -266,7 +242,6 @@ export default function AdminStruktur() {
                 </label>
               </div>
               
-              {/* Box Keterangan (Legend) */}
               <div className="mt-5 bg-slate-50 border border-slate-200 p-3 rounded-lg text-xs text-slate-700">
                 <p className="font-bold mb-2">Keterangan:</p>
                 <div className="flex items-center gap-3 mt-1">
@@ -282,7 +257,6 @@ export default function AdminStruktur() {
           </form>
         </div>
 
-        {/* PANEL KANAN: CANVAS REACT FLOW */}
         <div className="lg:col-span-3 bg-[#f8f9fa] rounded-xl border-2 border-slate-300 h-[600px] overflow-hidden shadow-inner">
           <ReactFlow 
             nodes={nodes} 

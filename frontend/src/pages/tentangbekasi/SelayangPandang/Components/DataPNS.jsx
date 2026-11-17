@@ -145,14 +145,6 @@ export default function DataPNS() {
         </h2>
       </div>
 
-      {isLoading ? (
-        <div className="text-gov-navy font-semibold py-10">Memuat data PNS...</div>
-      ) : !dataPns ? (
-        <div className="bg-gray-100 border border-gray-200 rounded-xl p-8 text-center text-gray-500 mb-8">
-          Belum ada data PNS yang ditambahkan dari Dashboard Admin. Menampilkan nilai default (0).
-        </div>
-      ) : null}
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-stretch">
         <StatCard index={0} active={pnsInView}>
           <p className="text-16 md:text-24 font-medium text-gov-navy/80">Jumlah PNS di lingkungan Pemerintah Daerah Kabupaten Bekasi sebanyak</p>

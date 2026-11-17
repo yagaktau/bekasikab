@@ -52,6 +52,7 @@ model PerangkatDaerah {
   kategori     String
   email        String?
   websiteUrl   String?
+  logo         String?
   alamat       String?  @db.Text
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -60,11 +61,14 @@ model PerangkatDaerah {
 }
 
 model Kecamatan {
-  id            Int             @id @default(autoincrement())
-  namaKecamatan String
+  id        Int      @id @default(autoincrement())
+  title     String
+  isi       String   @db.Text
+  website   String?
+  gambar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   desaKelurahan DesaKelurahan[]
-
-  @@map("kecamatan")
 }
 
 model DesaKelurahan {
@@ -79,16 +83,16 @@ model DesaKelurahan {
 }
 
 model StatistikPns {
-  id                  Int      @id @default(autoincrement())
-  tahun               Int      @unique
-  totalPns            Int
-  pria                Int
-  wanita              Int
-  golonganTerbanyak   String?
-  pendidikanTerbanyak String?
-  isActive            Boolean  @default(false)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  periode     String   @unique
+  totalPns    Int
+  lakiLaki    Int
+  perempuan   Int
+  golongan    Json?    // Menyimpan array objek golongan dinamis
+  pendidikan  Json?    // Menyimpan array objek pendidikan dinamis
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@map("statistik_pns")
 }
@@ -113,9 +117,12 @@ model NodeStruktur {
   id        String  @id 
   jabatan   String
   nama      String
+  type      String?
+  position  Json?
+  data      Json?
   posX      Float
   posY      Float
-  parentId  String? 
+  parentId  String? @db.Text
   sourceHandle String?
   targetHandle String?
   tipeGaris    String? @default("komando")

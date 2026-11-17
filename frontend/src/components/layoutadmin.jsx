@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Home, Network, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, Home, Network, Database, List, Settings, LogOut } from 'lucide-react';
 
 export default function AdminLayout() {
   const navigate = useNavigate();
@@ -17,6 +17,8 @@ export default function AdminLayout() {
     { name: 'Pimpinan', icon: <Users size={20} />, path: '/admin/Pimpinan' },
     { name: 'Kecamatan', icon: <Home size={20} />, path: '/admin/kecamatan' },
     { name: 'Struktur', icon: <Network size={20} />, path: '/admin/struktur' },
+    { name: 'Daftar Perangkat', icon: <List size={20} />, path: '/admin/Daftar' },
+    { name: 'Data PNS', icon: <Database size={20} />, path: '/admin/DataPNS' },
     { name: 'Pengaturan', icon: <Settings size={20} />, path: '/admin/settings' },
   ];
 

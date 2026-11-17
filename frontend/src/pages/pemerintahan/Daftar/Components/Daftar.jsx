@@ -15,7 +15,8 @@ export default function PerangkatList() {
 
   // 1. Fetch Data dari API
   useEffect(() => {
-    API.get('/perangkat') // Sesuaikan dengan endpoint backend
+    // GANTI baris API.get ini, gunakan backtick (`)
+    API.get(`http://${window.location.hostname}:5000/api/perangkat`) 
       .then((res) => {
         setDataPerangkat(res.data);
         setIsLoading(false);
@@ -115,10 +116,10 @@ export default function PerangkatList() {
                 placeholder="Cari Badan, Institusi, dan Dinas" 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#EADFDE] text-14 md:text-16 text-slate-800 placeholder-slate-500 pl-10 pr-3 py-2.5 md:py-2 rounded-xl md:rounded-md focus:outline-none focus:ring-2 focus:ring-[#0B5D34]"
+                className="w-full bg-[#EADFDE] text-14 md:text-16 text-slate-800 placeholder-slate-500 pl-10 pr-3 py-2.5 md:py-2 rounded-xl md:rounded-md focus:outline-none focus:ring-2 focus:ring-[#8D7674]"
               />
             </div>
-            <button className="bg-[#8D7674] md:bg-[#A38A88] hover:bg-[#7A6462] text-white px-5 py-2.5 md:py-2 rounded-xl md:rounded-md font-semibold text-14 md:text-16 transition-colors duration-300">
+            <button className="bg-[#8D7674] hover:bg-[#7A6462] text-white px-5 py-2.5 md:py-2 rounded-xl md:rounded-md font-semibold text-14 md:text-16 transition-colors duration-300">
               Cari
             </button>
           </div>
@@ -127,14 +128,14 @@ export default function PerangkatList() {
             <span className="text-15">Tipe Tampilan</span>
             <button 
               onClick={() => setViewMode('list')}
-              className={`p-1.5 rounded transition-colors duration-300 ${viewMode === 'list' ? 'bg-[#A38A88] text-white' : 'hover:bg-[#EADFDE]'}`}
+              className={`p-1.5 rounded transition-colors duration-300 ${viewMode === 'list' ? 'bg-[#333333] text-white' : 'hover:bg-[#EADFDE]'}`}
               title="Tampilan Daftar"
             >
               <List size={20} />
             </button>
             <button 
               onClick={() => setViewMode('grid')}
-              className={`p-1.5 rounded transition-colors duration-300 ${viewMode === 'grid' ? 'bg-[#A38A88] text-white' : 'hover:bg-[#EADFDE]'}`}
+              className={`p-1.5 rounded transition-colors duration-300 ${viewMode === 'grid' ? 'bg-[#333333] text-white' : 'hover:bg-[#EADFDE]'}`}
               title="Tampilan Bento/Grid"
             >
               <LayoutGrid size={20} />
@@ -155,37 +156,47 @@ export default function PerangkatList() {
           <div className="py-10 text-center text-slate-700">Tidak ada perangkat yang cocok dengan pencarian "{searchQuery}".</div>
         ) : (
           <div className={`
-            ${viewMode === 'list' ? 'flex flex-col gap-3 md:gap-4' : 'grid grid-cols-1 md:grid-cols-2 gap-4'}
+            grid gap-4
+            ${viewMode === 'list' ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}
           `}>
-            {paginatedData.map((item, index) => (
+            {paginatedData.map((item) => (
               <div 
                 key={item.id}
                 ref={addToRefs}
-                // Menambahkan item.website jika ada dari database (fallback ke '#' jika kosong)
-                onClick={() => window.open(item.website || '#', '_blank')}
-                className="opacity-0 translate-y-12 transition-all duration-700 ease-out group bg-[#EADFDE] p-3.5 md:p-4 rounded-2xl md:rounded-lg flex flex-col md:flex-row gap-3 md:gap-5 hover:bg-[#0B5D34] hover:shadow-lg cursor-pointer border border-transparent hover:border-[#0B5D34]"
+                className="opacity-0 translate-y-12 transition-all duration-700 ease-out flex bg-[#EADFDE] p-4 md:p-5 rounded-2xl md:rounded-xl shadow-sm hover:shadow-md border border-transparent hover:border-[#8D7674]"
               >
                 
-                <div className="flex items-center md:items-start gap-3 md:gap-5 flex-1">
-                  {/* Avatar box dengan ID atau nomor urut */}
-                  <div className="w-[70px] h-[70px] md:w-[100px] md:h-[100px] bg-[#9F8A88] rounded-xl md:rounded-md shrink-0 flex items-center justify-center text-white/50 text-xs font-bold group-hover:bg-[#084225] group-hover:text-white/80 transition-colors duration-300">
-                    {(currentPage - 1) * itemsPerPage + index + 1}
-                  </div>
-                  
-                  <div className="flex flex-col justify-center flex-1">
-                    <h3 className="font-bold text-14 md:text-16 text-slate-900 group-hover:text-white transition-colors duration-300 leading-snug">
-                      {item.name}
-                    </h3>
-                    <p className="text-12 md:text-14 text-slate-600 group-hover:text-gray-200 transition-colors duration-300 mt-0.5">
-                      {item.email || "Email belum tersedia"}
-                    </p>
-                  </div>
+                {/* Bagian Kiri: Kotak Logo di Daftar.jsx */}
+                <div className="w-[70px] h-[70px] md:w-[90px] md:h-[90px] bg-[#9F8A88] rounded-xl shrink-0 flex items-center justify-center overflow-hidden">
+                  {item.logo ? (
+                      <img 
+                        // GANTI baris src ini, gunakan backtick (`)
+                        src={item.logo.startsWith('http') ? item.logo : `http://${window.location.hostname}:5000${item.logo}`} 
+                        alt={`Logo ${item.name}`} 
+                        className="w-full h-full object-cover" 
+                      />
+                  ) : (
+                    <span className="text-white/40 text-xs font-bold px-2 text-center leading-tight">Tidak Ada Logo</span>
+                  )}
                 </div>
-
-                <div className="w-full md:w-auto mt-1 md:mt-0 flex items-end">
-                  <button className="w-full md:w-auto flex items-center justify-center gap-2 bg-[#9F8A88] text-white text-13 md:text-13 font-semibold px-4 py-2 md:py-1.5 rounded-xl md:rounded hover:bg-[#EADFDE] hover:text-slate-900 transition-colors duration-300">
+                
+                {/* Bagian Kanan: Konten Teks & Tombol */}
+                <div className="ml-4 flex flex-col justify-start flex-1 min-w-0">
+                  <h3 className="font-bold text-15 md:text-17 text-slate-900 leading-tight mb-1">
+                    {item.name || "Nama Badan, Institusi, atau Dinas"}
+                  </h3>
+                  
+                  {/* TAMBAHKAN break-all di class ini agar teks yang kepanjangan otomatis turun ke baris baru */}
+                  <p className="text-13 md:text-14 text-slate-600 mb-3 break-all">
+                    {item.email || "Alamat email"}
+                  </p>
+                  
+                  <button 
+                    onClick={() => window.open(item.website || '#', '_blank')}
+                    className="flex items-center justify-center md:justify-start gap-2 bg-[#9F8A88] text-white text-12 md:text-13 font-semibold px-4 py-2 md:py-1.5 rounded-lg md:rounded hover:bg-[#7A6462] transition-colors duration-300 w-fit"
+                  >
                     <span>Kunjungi Website</span> 
-                    <ExternalLink size={15} />
+                    <ExternalLink size={14} />
                   </button>
                 </div>
 
@@ -241,7 +252,7 @@ export default function PerangkatList() {
                   <select 
                     value={itemsPerPage}
                     onChange={handleItemsPerPageChange}
-                    className="appearance-none bg-[#EADFDE] pl-3 pr-8 py-1 rounded cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#A38A88] hover:bg-[#D8C7C6]"
+                    className="appearance-none bg-[#EADFDE] pl-3 pr-8 py-1 rounded cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#8D7674] hover:bg-[#D8C7C6]"
                   >
                     <option value={5}>5</option>
                     <option value={10}>10</option>
@@ -260,7 +271,7 @@ export default function PerangkatList() {
                     <select 
                       value={currentPage}
                       onChange={(e) => setCurrentPage(Number(e.target.value))}
-                      className="appearance-none bg-[#EADFDE] pl-3 pr-8 py-1 rounded cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#A38A88] hover:bg-[#D8C7C6]"
+                      className="appearance-none bg-[#EADFDE] pl-3 pr-8 py-1 rounded cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#8D7674] hover:bg-[#D8C7C6]"
                     >
                       {Array.from({ length: totalPages }, (_, i) => (
                         <option key={i + 1} value={i + 1}>{i + 1}</option>
@@ -274,14 +285,14 @@ export default function PerangkatList() {
                   <button 
                     onClick={handlePrevPage}
                     disabled={currentPage === 1}
-                    className={`p-1 rounded transition-colors ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'hover:bg-[#A38A88] hover:text-white'}`}
+                    className={`p-1 rounded transition-colors ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'hover:bg-[#8D7674] hover:text-white'}`}
                   >
                     <ChevronLeft size={18} />
                   </button>
                   <button 
                     onClick={handleNextPage}
                     disabled={currentPage === totalPages}
-                    className={`p-1 rounded transition-colors ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'hover:bg-[#A38A88] hover:text-white'}`}
+                    className={`p-1 rounded transition-colors ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'hover:bg-[#8D7674] hover:text-white'}`}
                   >
                     <ChevronRight size={18} />
                   </button>

@@ -25,8 +25,8 @@ export default function AdminLogin() {
       const data = await response.json();
 
       if (response.ok) {
-        // Jika sukses, simpan token ke localStorage
-        localStorage.setItem('adminToken', data.token);
+        // Jika sukses, simpan token ke localStorage (PASTIKAN PAKE data.token)
+        localStorage.setItem('token', data.token);
         
         // Arahkan ke halaman dashboard
         navigate('/admin/dashboard'); 
@@ -40,7 +40,7 @@ export default function AdminLogin() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }
 
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
