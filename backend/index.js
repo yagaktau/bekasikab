@@ -477,7 +477,7 @@ app.delete("/api/kecamatan/:id", async (req, res) => {
 app.get("/api/datapns", async (req, res) => {
   try {
     const data = await prisma.statistikPns.findFirst({
-      orderBy: { id: "desc" },
+      orderBy: { id: "desc" }, // Diubah dari 'tahun' menjadi 'id'
     });
 
     if (!data) {
@@ -485,28 +485,30 @@ app.get("/api/datapns", async (req, res) => {
         total: 0,
         lakiLaki: 0,
         perempuan: 0,
-        golongan: "Belum Ada",
+        golongan: "Belum diatur",
         golonganJumlah: 0,
-        pendidikan: "Belum Ada",
+        pendidikan: "Belum diatur",
         pendidikanJumlah: 0,
       });
     }
 
-    // Menghitung otomatis Golongan dengan jumlah orang tertinggi dari JSON array
-    let maxGol = { nama: "Belum Ada", jumlah: 0 };
-    if (data.golongan && Array.isArray(data.golongan)) {
+    // Cari otomatis golongan dengan jumlah terbanyak dari array JSON
+    let maxGol = { nama: "Belum diatur", jumlah: 0 };
+    if (Array.isArray(data.golongan)) {
       data.golongan.forEach((g) => {
-        if (Number(g.jumlah) > maxGol.jumlah)
+        if (Number(g.jumlah) > maxGol.jumlah) {
           maxGol = { nama: g.nama, jumlah: Number(g.jumlah) };
+        }
       });
     }
 
-    // Menghitung otomatis Pendidikan dengan jumlah orang tertinggi dari JSON array
-    let maxPend = { tingkat: "Belum Ada", jumlah: 0 };
-    if (data.pendidikan && Array.isArray(data.pendidikan)) {
+    // Cari otomatis pendidikan dengan jumlah terbanyak dari array JSON
+    let maxPend = { tingkat: "Belum diatur", jumlah: 0 };
+    if (Array.isArray(data.pendidikan)) {
       data.pendidikan.forEach((p) => {
-        if (Number(p.jumlah) > maxPend.jumlah)
+        if (Number(p.jumlah) > maxPend.jumlah) {
           maxPend = { tingkat: p.tingkat, jumlah: Number(p.jumlah) };
+        }
       });
     }
 
@@ -520,7 +522,7 @@ app.get("/api/datapns", async (req, res) => {
       pendidikanJumlah: maxPend.jumlah,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error GET Data PNS:", error);
     res.status(500).json({ message: "Error Data PNS", error: error.message });
   }
 });
