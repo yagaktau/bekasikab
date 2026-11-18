@@ -473,6 +473,30 @@ app.delete("/api/kecamatan/:id", async (req, res) => {
 });
 
 // --- CRUD REALISASI ANGGARAN ---
+
+// UPDATE GET (tambahkan id agar admin bisa edit/hapus)
+app.get("/api/realisasi-anggaran", async (req, res) => {
+  try {
+    const data = await prisma.realisasiAnggaran.findMany({
+      orderBy: { tahun: "asc" },
+    });
+
+    if (!data || data.length === 0) return res.json([]);
+
+    res.json(
+      data.map((item) => ({
+        id: item.id, // <-- Ditambahkan untuk Admin
+        year: item.tahun,
+        amount: item.nilaiRealisasi ? item.nilaiRealisasi.toString() : "0",
+      })),
+    );
+  } catch (error) {
+    console.error("Error GET Realisasi Anggaran:", error);
+    res.status(500).json({ message: "Error Anggaran", error: error.message });
+  }
+});
+
+// POST
 app.post(
   "/api/admin/realisasi-anggaran",
   authenticateAdmin,
@@ -480,18 +504,26 @@ app.post(
     try {
       const { year, amount } = req.body;
       const newAnggaran = await prisma.realisasiAnggaran.create({
-        data: { year: parseInt(year), amount: BigInt(amount) },
+        data: {
+          tahun: parseInt(year),
+          targetAnggaran: amount, // Disamakan karena fokus pada realisasinya
+          nilaiRealisasi: amount,
+        },
       });
       res.status(201).json({
         message: "Anggaran ditambahkan",
-        data: { ...newAnggaran, amount: newAnggaran.amount.toString() },
+        data: {
+          ...newAnggaran,
+          nilaiRealisasi: newAnggaran.nilaiRealisasi.toString(),
+        },
       });
     } catch (error) {
-      res.status(500).json({ message: "Error", error });
+      res.status(500).json({ message: "Error", error: error.message });
     }
   },
 );
 
+// PUT (Edit)
 app.put(
   "/api/admin/realisasi-anggaran/:id",
   authenticateAdmin,
@@ -500,18 +532,26 @@ app.put(
       const { year, amount } = req.body;
       const updatedAnggaran = await prisma.realisasiAnggaran.update({
         where: { id: parseInt(req.params.id) },
-        data: { year: parseInt(year), amount: BigInt(amount) },
+        data: {
+          tahun: parseInt(year),
+          targetAnggaran: amount,
+          nilaiRealisasi: amount,
+        },
       });
       res.json({
         message: "Anggaran diperbarui",
-        data: { ...updatedAnggaran, amount: updatedAnggaran.amount.toString() },
+        data: {
+          ...updatedAnggaran,
+          nilaiRealisasi: updatedAnggaran.nilaiRealisasi.toString(),
+        },
       });
     } catch (error) {
-      res.status(500).json({ message: "Error", error });
+      res.status(500).json({ message: "Error", error: error.message });
     }
   },
 );
 
+// DELETE
 app.delete(
   "/api/admin/realisasi-anggaran/:id",
   authenticateAdmin,
@@ -522,7 +562,7 @@ app.delete(
       });
       res.json({ message: "Anggaran dihapus" });
     } catch (error) {
-      res.status(500).json({ message: "Error", error });
+      res.status(500).json({ message: "Error", error: error.message });
     }
   },
 );

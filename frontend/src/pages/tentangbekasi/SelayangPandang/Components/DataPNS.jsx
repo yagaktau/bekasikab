@@ -112,13 +112,13 @@ export default function DataPNS() {
   // --- DATA STATIS ---
   // Silakan ubah angka dan teks di bawah ini jika ada update data
   const displayData = {
-    total: 15420, 
-    lakiLaki: 8200, 
-    perempuan: 7220,
-    golongan: 'III/c', 
-    golonganJumlah: 4500,
+    total: 13116, 
+    lakiLaki: 4839, 
+    perempuan: 8277,
+    golongan: 'III', 
+    golonganJumlah: 5659,
     pendidikan: 'S1', 
-    pendidikanJumlah: 9800,
+    pendidikanJumlah: 9408,
   };
 
   return (

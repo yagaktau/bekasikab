@@ -18,6 +18,7 @@ export default function AdminLayout() {
     { name: 'Kecamatan', icon: <Home size={20} />, path: '/admin/kecamatan' },
     { name: 'Struktur', icon: <Network size={20} />, path: '/admin/struktur' },
     { name: 'Daftar Perangkat', icon: <List size={20} />, path: '/admin/Daftar' },
+    { name: 'Realisasi Anggaran', icon: <Database size={20} />, path: '/admin/realisasi' },
     { name: 'Pengaturan', icon: <Settings size={20} />, path: '/admin/settings' },
   ];
 
