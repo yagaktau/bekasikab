@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
 import API from '../../../../services/api'; // Sesuaikan path ini jika perlu
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 // --- Kumpulan Helper Khusus PNS (Jangan Dihapus) ---
 function useInView() {
@@ -108,33 +108,17 @@ function GenderDonut({ laki, perempuan, active, delay = 0 }) {
 
 export default function DataPNS() {
   const [pnsRef, pnsInView] = useInView();
-  
-  // 1. State untuk data API
-  const [dataPns, setDataPns] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
 
-  // 2. Ambil Data
-  useEffect(() => {
-    API.get('/datapns')
-      .then((res) => {
-        setDataPns(res.data);
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        console.error("Gagal mengambil data PNS:", err);
-        setIsLoading(false);
-      });
-  }, []);
-
-  // 3. Fallback Data Kosong
-  const displayData = dataPns || {
-    total: 0, 
-    lakiLaki: 0, 
-    perempuan: 0,
-    golongan: 'Belum diatur', 
-    golonganJumlah: 0,
-    pendidikan: 'Belum diatur', 
-    pendidikanJumlah: 0,
+  // --- DATA STATIS ---
+  // Silakan ubah angka dan teks di bawah ini jika ada update data
+  const displayData = {
+    total: 15420, 
+    lakiLaki: 8200, 
+    perempuan: 7220,
+    golongan: 'III/c', 
+    golonganJumlah: 4500,
+    pendidikan: 'S1', 
+    pendidikanJumlah: 9800,
   };
 
   return (

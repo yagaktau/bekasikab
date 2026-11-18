@@ -23,7 +23,6 @@ import AdminPimpinan from './pages/admin/Pimpinan';
 import AdminStruktur from './pages/admin/AdminStruktur';
 import AdminKecamatan from './pages/admin/AdminKecamatan';
 import AdminDaftar from './pages/admin/AdminDaftar';
-import AdminDataPNS from './pages/admin/AdminDataPNS';
 
 // =======================================================
 // 1. LAYOUT PUBLIK (Untuk Pengunjung Web)
@@ -76,7 +75,6 @@ export default function App() {
           <Route path="/admin/struktur" element={<AdminStruktur />} />
           <Route path="/admin/Kecamatan" element={<AdminKecamatan />} />
           <Route path="/admin/Daftar" element={<AdminDaftar />} />
-          <Route path="/admin/DataPNS" element={<AdminDataPNS />} />
         </Route>
 
       </Routes>
