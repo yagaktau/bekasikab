@@ -17,7 +17,6 @@ export default function AdminPimpinan() {
     tempatTanggalLahir: '', riwayatPendidikan: '', karirPolitik: '', riwayatPangkat: ''
   });
 
-  const token = localStorage.getItem('adminToken');
   const API_BASE_URL = `http://${window.location.hostname}:5000`;
 
   const JABATAN_OPTIONS = [
@@ -115,6 +114,7 @@ export default function AdminPimpinan() {
 
       const url = isEditing ? `${API_BASE_URL}/api/admin/pimpinan/${editId}` : `${API_BASE_URL}/api/admin/pimpinan`;
       const res = await fetch(url, {
+        credentials: 'include',
         method: isEditing ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(payload),
@@ -128,7 +128,7 @@ export default function AdminPimpinan() {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Hapus data ini?')) return;
-    const res = await fetch(`${API_BASE_URL}/api/admin/pimpinan/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+    const res = await fetch(`${API_BASE_URL}/api/admin/pimpinan/${id}`, { method: 'DELETE'});
     if (res.ok) fetchData();
   };
 

@@ -9,11 +9,7 @@ export default function AdminRealisasi() {
   
   const [formData, setFormData] = useState({ id: null, year: '', amount: '' });
 
-  // Ambil token untuk akses admin
-  const token = localStorage.getItem('adminToken');
-  const headers = { Authorization: `Bearer ${token}` };
-
-  const fetchData = async () => {
+    const fetchData = async () => {
     setIsLoading(true);
     try {
       const res = await API.get('/realisasi-anggaran');

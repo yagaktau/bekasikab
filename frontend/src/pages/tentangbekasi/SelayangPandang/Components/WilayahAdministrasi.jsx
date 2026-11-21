@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-
+  
 export default function WilayahAdministrasi() {
   const [daftarKecamatan, setDaftarKecamatan] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -69,19 +69,19 @@ export default function WilayahAdministrasi() {
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 z-0" 
                 />
 
-                {/* 2. GRADASI HITAM BAWAAN (Vignette) - Hilang saat di-hover supaya foto lebih terang */}
+                {/* 2. GRADASI HITAM BAWAAN (Vignette) */}
                 <div className="absolute top-0 inset-x-0 h-[180px] bg-gradient-to-t from-black/80 via-transparent to-transparent z-10 pointer-events-none transition-opacity duration-500 group-hover:opacity-0"></div>
 
-                {/* 3. KOTAK SOLID BAWAH PERMANEN (Mulai dari area bawah teks Kelurahan sampai dasar) */}
+                {/* 3. KOTAK SOLID BAWAH PERMANEN */}
                 <div className="absolute top-[250px] bottom-0 inset-x-0 bg-[#333333] z-10 pointer-events-none"></div>
 
-                {/* 4. KOTAK SOLID TENGAH (Mulai dari garis pembatas 180px sampai 250px. Hilang saat di-hover) */}
+                {/* 4. KOTAK SOLID TENGAH */}
                 <div className="absolute top-[180px] h-[70px] inset-x-0 bg-[#333333] transition-opacity duration-500 group-hover:opacity-0 z-10 pointer-events-none"></div>
 
-                {/* 5. EFEK GRADASI HOVER (Muncul saat di-hover, memudar dari titik 250px ke atas sampai 130px) */}
+                {/* 5. EFEK GRADASI HOVER */}
                 <div className="absolute top-[130px] h-[120px] inset-x-0 bg-gradient-to-t from-[#333333] to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 z-10 pointer-events-none"></div>
 
-                {/* 6. GARIS PEMBATAS TEGAS (Hilang saat di-hover agar gradasi menyatu sempurna) */}
+                {/* 6. GARIS PEMBATAS TEGAS */}
                 <div className="absolute top-[180px] inset-x-0 border-t border-white/20 transition-opacity duration-500 group-hover:opacity-0 z-20 pointer-events-none"></div>
 
                 {/* 7. KONTEN TEKS UTAMA (Lapisan paling atas / z-30) */}
@@ -108,7 +108,6 @@ export default function WilayahAdministrasi() {
 
                       {Array.isArray(item.namaKelurahan) && item.namaKelurahan.length > 0 && (
                         <div>
-                          {/* Tambahan jumlah di sini */}
                           <span className="font-semibold text-emerald-400 text-[14px] md:text-[15px] drop-shadow-md">Kelurahan ({item.namaKelurahan.length}): </span>
                           <span className="text-gray-100 text-[14px] md:text-[15px] leading-relaxed drop-shadow-md">
                             {item.namaKelurahan.join(', ')}
@@ -118,7 +117,6 @@ export default function WilayahAdministrasi() {
 
                       {Array.isArray(item.namaDesa) && item.namaDesa.length > 0 && (
                         <div>
-                          {/* Tambahan jumlah di sini */}
                           <span className="font-semibold text-amber-400 text-[14px] md:text-[15px] drop-shadow-md">Desa ({item.namaDesa.length}): </span>
                           <span className="text-gray-100 text-[14px] md:text-[15px] leading-relaxed drop-shadow-md">
                             {item.namaDesa.join(', ')}

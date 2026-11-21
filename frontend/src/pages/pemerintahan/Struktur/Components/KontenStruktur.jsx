@@ -95,11 +95,11 @@ export default function StrukturContent() {
                 const isKoordinasi = edgeData.tipeGaris === 'koordinasi';
 
                 fetchedEdges.push({
-                  id: `e-${edgeData.source}-${item.id}`,
+                  id: `e-${edgeData.source}-${item.id}-${Math.random().toString(36).substring(7)}`,
                   source: edgeData.source,
                   target: item.id,
-                  sourceHandle: edgeData.sourceHandle,
-                  targetHandle: edgeData.targetHandle,
+                  sourceHandle: edgeData.sourceHandle || 'bottom',
+                  targetHandle: edgeData.targetHandle || 'top',
                   type: 'smoothstep', // Bentuk Siku-siku
                   style: {
                     strokeWidth: 2,

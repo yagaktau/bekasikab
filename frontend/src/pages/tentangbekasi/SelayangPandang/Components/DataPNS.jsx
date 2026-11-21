@@ -115,9 +115,9 @@ export default function DataPNS() {
     total: 13116, 
     lakiLaki: 4839, 
     perempuan: 8277,
-    golongan: 'III', 
+    golongan: 'Golongan III', 
     golonganJumlah: 5659,
-    pendidikan: 'S1', 
+    pendidikan: 'S1/Sarjana', 
     pendidikanJumlah: 9408,
   };
 

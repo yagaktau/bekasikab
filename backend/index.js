@@ -4,6 +4,7 @@ const { PrismaClient } = require("@prisma/client");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
+const cookieParser = require("cookie-parser");
 
 // Inisialisasi Express & Prisma
 const app = express();
@@ -24,8 +25,14 @@ if (!fs.existsSync(uploadDir)) {
 }
 
 // Middleware Dasar
-app.use(cors());
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  }),
+);
 app.use(express.json());
+app.use(cookieParser());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ==========================================

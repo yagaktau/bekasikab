@@ -3,12 +3,20 @@ import { Link } from 'react-router-dom';
 import heroBg from '../../../../assets/kecamatan.jpg';
 
 // --- Ikon SVG ---
-const ListIcon = () => (
-  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M3 5h18v2H3V5zm0 6h18v2H3v-2zm0 6h18v2H3v-2z"/></svg>
+// Ikon untuk Layout Daftar (3 Garis Berdiri / Kolom)
+const IconDaftar = () => (
+  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M4 4h3.5v16H4zm6.25 0h3.5v16h-3.5zm6.25 0h3.5v16h-3.5z" />
+  </svg>
 );
-const GridIcon = () => (
-  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm10 0h6v6h-6v-6z"/></svg>
+
+// Ikon untuk Layout Bento (4 Kotak / Grid)
+const IconBento = () => (
+  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm10 0h6v6h-6v-6z"/>
+  </svg>
 );
+
 const ChevronLeftIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/></svg>
 );
@@ -24,7 +32,7 @@ export default function Kecamatan() {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewType, setViewType] = useState('grid');
   const [sortOrder, setSortOrder] = useState('asc');
-  const [itemsPerPage, setItemsPerPage] = useState(8);
+  const [itemsPerPage, setItemsPerPage] = useState(4);
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -112,8 +120,17 @@ export default function Kecamatan() {
 
               <div className="hidden md:flex items-center gap-4 text-gray-800">
                 <div className="flex gap-2 bg-[#E3DBDA] p-1 rounded-lg border border-white/40 shadow-inner">
-                  <button onClick={() => setViewType('grid')} className={`p-1.5 rounded-md transition-colors ${viewType === 'grid' ? 'bg-[#A79A98] text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}><GridIcon /></button>
-                  <button onClick={() => setViewType('list')} className={`p-1 rounded-md transition-colors ${viewType === 'list' ? 'bg-[#A79A98] text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}><ListIcon /></button>
+                  
+                  {/* Tombol Daftar (List) - Sekarang di Kiri */}
+                  <button onClick={() => setViewType('list')} className={`p-1 rounded-md transition-colors ${viewType === 'list' ? 'bg-[#A79A98] text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+                    <IconDaftar />
+                  </button>
+
+                  {/* Tombol Bento (Grid) - Sekarang di Kanan */}
+                  <button onClick={() => setViewType('grid')} className={`p-1.5 rounded-md transition-colors ${viewType === 'grid' ? 'bg-[#A79A98] text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+                    <IconBento />
+                  </button>
+
                 </div>
               </div>
             </div>
@@ -128,7 +145,7 @@ export default function Kecamatan() {
               <p className="text-gray-500 text-sm">Tidak ada data yang cocok dengan kata kunci tersebut.</p>
             </div>
           ) : (
-            <div className={`grid gap-4 md:gap-6 pt-2 pb-6 ${viewType === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1 md:grid-cols-2'}`}>
+            <div className={`grid gap-4 md:gap-6 pt-2 pb-6 ${viewType === 'list' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1 md:grid-cols-2'}`}>
               {paginatedData.map((item) => {
                 const imgUrl = (item.foto || item.gambar) 
                   ? ((item.foto || item.gambar).startsWith('http') ? (item.foto || item.gambar) : `http://${window.location.hostname}:5000${item.foto || item.gambar}`)
@@ -166,7 +183,7 @@ export default function Kecamatan() {
 
                     {/* 2. TAMPILAN KHUSUS DESKTOP */}
                     <div className="hidden md:flex w-full h-full">
-                      {viewType === 'grid' ? (
+                      {viewType === 'list' ? (
                         
                         /* --- KARTU ANIMASI (GRID DESKTOP) --- */
                         /* 100% sama dengan animasi di WilayahAdministrasi.jsx */
@@ -237,13 +254,28 @@ export default function Kecamatan() {
                       ) : (
 
                         /* --- KARTU LIST (LIST DESKTOP) --- */
-                        /* Tampilan baris horizontal sederhana kalau user klik icon List di desktop */
-                        <div className="w-full flex bg-[#333333] border-l-4 border-[#006837] rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow min-h-[200px]">
-                          <div className="w-48 shrink-0 relative bg-gray-200">
-                            <img src={imgUrl} className="w-full h-full object-cover" alt={item.title} />
+                        /* Tampilan baris horizontal sederhana dengan animasi */
+                        <div className="group w-full flex bg-[#333333] border-l-4 border-[#006837] rounded-xl overflow-hidden shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 min-h-[200px] cursor-pointer">
+                          
+                         {/* BAGIAN KIRI: FOTO DENGAN ZOOM & GRADASI BLEND */}
+                          <div className="w-48 md:w-[280px] shrink-0 relative overflow-hidden bg-[#222]">
+                            
+                            <img 
+                              src={imgUrl} 
+                              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110" 
+                              alt={item.title} 
+                            />
+                            
+                            {/* ANIMASI GRADASI DI AREA CORETAN (Nge-blend dengan background #333333) */}
+                            <div className="absolute inset-y-0 right-0 w-32 md:w-40 bg-gradient-to-l from-[#333333] via-[#333333]/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                            
                           </div>
+
+                          {/* BAGIAN KANAN: KONTEN TEKS */}
                           <div className="p-5 flex flex-col flex-1">
-                            <h3 className="text-lg font-extrabold text-white uppercase">{item.namaKecamatan || item.title}</h3>
+                            <h3 className="text-lg font-extrabold text-white uppercase transition-colors duration-300">
+                              {item.namaKecamatan || item.title}
+                            </h3>
                             <hr className="border-white/15 my-3" />
                             <div className="space-y-2.5">
                               {Array.isArray(item.namaKelurahan) && item.namaKelurahan.length > 0 && (

@@ -11,6 +11,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import API from '../../services/api';
+import axios from 'axios';
 
 // 1. KOMPONEN KOTAK (Wajib di luar)
 const AdminJabatanNode = ({ data }) => (
@@ -40,7 +41,9 @@ export default function AdminStruktur() {
   const [formData, setFormData] = useState({ jabatan: '', nama: '' });
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/struktur-nodes')
+    fetch('http://localhost:5000/api/struktur-nodes', {
+      credentials: 'include'
+    })
       .then(res => res.json())
       .then(data => {
         if (!data || data.length === 0) return;
@@ -153,7 +156,13 @@ export default function AdminStruktur() {
         };
       });
 
-      const response = await API.post('/admin/struktur-nodes', { nodes: payloadNodes });
+      const response = await axios.post(
+        `http://${window.location.hostname}:5000/api/admin/struktur-nodes`, 
+        payloadNodes,
+        {
+          withCredentials: true
+        }
+      );
 
       if (response.status === 200 || response.status === 201) {
         alert("Layout Struktur berhasil disimpan!");

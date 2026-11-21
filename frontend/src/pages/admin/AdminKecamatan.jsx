@@ -105,6 +105,7 @@ export default function AdminKecamatan() {
       const method = editId ? 'PUT' : 'POST';
 
       const res = await fetch(url, {
+        credentials: 'include',
         method,
         body: formData,
       });
@@ -130,6 +131,7 @@ export default function AdminKecamatan() {
 
     try {
       const res = await fetch(`${API_URL}/${id}`, {
+        credentials: 'include',
         method: 'DELETE',
       });
 

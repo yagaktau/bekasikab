@@ -13,25 +13,24 @@ export default function AdminLogin() {
     setIsLoading(true);
     
     try {
-      // Sesuaikan URL http://localhost:5000 dengan port backend kamu jika berbeda
       const response = await fetch('http://localhost:5000/api/admin/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        // TAMBAHKAN BARIS INI:
+        credentials: 'include', 
         body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        // Jika sukses, simpan token ke localStorage (PASTIKAN PAKE data.token)
-        localStorage.setItem('token', data.token);
+        // HAPUS BARIS INI: localStorage.setItem('token', data.token);
         
-        // Arahkan ke halaman dashboard
+        // Langsung arahkan ke halaman dashboard
         navigate('/admin/dashboard'); 
       } else {
-        // Jika salah password/email
         alert(data.message || 'Gagal login. Periksa email dan password Anda.');
       }
     } catch (error) {
