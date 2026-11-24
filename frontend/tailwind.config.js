@@ -4,32 +4,40 @@ export default {
   theme: {
     extend: {
       colors: {
+        // 1. Forest Green: Navbar, heading, footer, tombol utama
+        "forest-green": "#174D36",
+
+        // 2. Sage Green: Hover, tombol sekunder, elemen dekoratif
+        "sage-green": "#397A57",
+
+        // 3. Mint Gray: Background section alternatif
+        "mint-gray": "#E8EFEA",
+
+        // 4. Off White: Background utama
+        "off-white": "#F7F8F5",
+
+        // 5. Charcoal: Teks paragraf dan informasi
+        charcoal: "#343D38",
+
+        // Alias semantik & kompatibilitas kelas lama
         "bekasi-green": {
-          DEFAULT: "#006837",
-          hover: "#060706",
-          light: "#E6F4EA",
-        },
-        "bekasi-gold": {
-          DEFAULT: "#E2A812",
-          hover: "#C5920D",
-          light: "#FEF3C7",
-        },
-        "bekasi-blue": {
-          DEFAULT: "#0284C7",
-          dark: "#0369A1",
+          DEFAULT: "#174D36", // Tombol utama
+          hover: "#397A57", // Hover & tombol sekunder
+          light: "#E8EFEA", // Highlight / section alternatif
         },
         "gov-navy": {
-          DEFAULT: "#0F172A",
-          surface: "#1E293B",
+          DEFAULT: "#174D36", // Navbar, heading, footer
+          surface: "#397A57", // Elemen dekoratif / aksen permukaan
         },
         heading: {
-          DEFAULT: "#1b1b1c",
-          dark: "#81f5e2",
+          DEFAULT: "#174D36", // Heading utama
+          dark: "#E8EFEA", // Heading di atas latar gelap
         },
-        // Warna Netral UI
-        canvas: "#F8FAFC",
-        "card-bg": "#FFFFFF",
-        "card-border": "#E2E8F0",
+        canvas: "#F7F8F5", // Background utama
+        "section-alt": "#E8EFEA", // Background section alternatif
+        "card-bg": "#F7F8F5", // Background kartu
+        "card-border": "#E8EFEA", // Garis tepi kartu
+        "body-text": "#343D38", // Teks paragraf dan informasi
       },
       fontSize: {
         12: ["12px", { lineHeight: "1.5" }],

@@ -15,13 +15,13 @@ export default function Visi() {
   return (
     <>
       <div className="mt-12 md:mt-16 mb-8">
-        <h2 className="text-32 md:text-48 font-bold text-gov-navy border-b-2 border-bekasi-green pb-2 inline-block">
+        <h2 className="text-32 md:text-48 font-bold text-forest-green border-b-2 border-sage-green pb-2 inline-block">
           Visi Pemerintahan Kabupaten Bekasi
         </h2>
       </div>
 
-      <div className="bg-[#D8C7C6]/40 border border-[#D8C7C6] p-6 md:p-10 rounded-xl mb-8 shadow-sm">
-        <p className="text-base md:text-lg leading-relaxed text-center font-medium text-slate-900">
+      <div className="bg-mint-gray border border-sage-green/25 p-6 md:p-10 rounded-xl mb-8 shadow-sm">
+        <p className="text-base md:text-lg leading-relaxed text-center font-medium text-charcoal">
           {visiData.ringkasan}
         </p>
       </div>
@@ -33,23 +33,23 @@ export default function Visi() {
           return (
             <div
               key={item.id}
-              className="group flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
+              className="group flex flex-col bg-off-white border border-sage-green/25 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
             >
-              <div className="h-48 md:h-56 w-full overflow-hidden bg-slate-100 relative">
+              <div className="h-48 md:h-56 w-full overflow-hidden bg-mint-gray relative">
                 <img
                   src={item.image}
                   alt={item.title}
                   className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300" />
+                <div className="absolute inset-0 bg-forest-green/10 group-hover:bg-transparent transition-colors duration-300" />
               </div>
 
               <div
                 onClick={() => handleToggleCard(item.id)}
                 className={`cursor-pointer py-4 px-5 text-center transition-colors duration-300 ${
                   isOpen
-                    ? 'bg-[#0B5D34] text-white'
-                    : 'bg-[#A48887] text-white group-hover:bg-[#0B5D34]'
+                    ? 'bg-sage-green text-off-white'
+                    : 'bg-forest-green text-off-white group-hover:bg-sage-green'
                 }`}
               >
                 <h3 className="text-lg md:text-xl font-bold tracking-wide flex items-center justify-center gap-2">
@@ -69,12 +69,14 @@ export default function Visi() {
               </div>
 
               <div
-                className={`bg-slate-50 transition-all duration-500 ease-in-out overflow-hidden border-t ${
-                  isOpen ? 'max-h-[500px] opacity-100 border-[#0B5D34]/20' : 'max-h-0 opacity-0 border-transparent'
+                className={`bg-mint-gray/60 transition-all duration-500 ease-in-out overflow-hidden border-t ${
+                  isOpen
+                    ? 'max-h-[500px] opacity-100 border-sage-green/25'
+                    : 'max-h-0 opacity-0 border-transparent'
                 }`}
               >
                 <div className="p-5">
-                  <p className="text-sm md:text-base text-slate-700 leading-relaxed text-center font-normal">
+                  <p className="text-sm md:text-base text-charcoal leading-relaxed text-center font-normal">
                     {item.info}
                   </p>
                 </div>

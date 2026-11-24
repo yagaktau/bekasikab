@@ -19,11 +19,32 @@ import DaftarPerangkat from './pages/pemerintahan/Daftar/DaftarPerangkat';
 // Import Login Admin
 import AdminLogin from './pages/admin/Login'; 
 import AdminLayout from './components/layoutadmin'; 
-import AdminPimpinan from './pages/admin/Pimpinan';
+import AdminPimpinan from './pages/admin/AdminPimpinan';
 import AdminStruktur from './pages/admin/AdminStruktur';
 import AdminKecamatan from './pages/admin/AdminKecamatan';
 import AdminDaftar from './pages/admin/AdminDaftar';
 import AdminRealisasi from './pages/admin/AdminRealisasi';
+import AdminUser from './pages/admin/AdminUser';
+
+function SuperAdminRoute({ children }) {
+  let role = 'ADMIN';
+  try {
+    const saved = JSON.parse(localStorage.getItem('adminUser') || 'null');
+    if (saved?.role) {
+      role = saved.role;
+    } else {
+      const token = localStorage.getItem('token');
+      if (token) {
+        role = JSON.parse(atob(token.split('.')[1])).role || 'ADMIN';
+      }
+    }
+  } catch {}
+
+  if (role !== 'SUPER_ADMIN') {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+  return children;
+}
 
 // =======================================================
 // 1. LAYOUT PUBLIK (Untuk Pengunjung Web)
@@ -70,13 +91,12 @@ export default function App() {
 
         <Route element={<AdminLayout />}>
           <Route path="/admin/dashboard" element={<div className="bg-white p-6 rounded-xl shadow-sm">Selamat Datang di Dashboard Admin!</div>} />
-          {/* Nanti rute CRUD pimpinan dll masuk ke sini */}
-          
           <Route path="/admin/Pimpinan" element={<AdminPimpinan />} />
           <Route path="/admin/struktur" element={<AdminStruktur />} />
           <Route path="/admin/Kecamatan" element={<AdminKecamatan />} />
           <Route path="/admin/Daftar" element={<AdminDaftar />} />
           <Route path="/admin/realisasi" element={<AdminRealisasi />} />
+          <Route path="/admin/users" element={<SuperAdminRoute> <AdminUser /> </SuperAdminRoute>} />
         </Route>
 
       </Routes>

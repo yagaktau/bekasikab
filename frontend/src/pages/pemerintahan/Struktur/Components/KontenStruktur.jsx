@@ -1,35 +1,50 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import ReactFlow, { 
-  Background, 
-  Controls, 
+import ReactFlow, {
+  Background,
+  Controls,
   applyNodeChanges,
   Handle,
   Position,
-  ConnectionMode
+  ConnectionMode,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { ChevronRight } from 'lucide-react';
 
 // --- KOMPONEN KUSTOM UNTUK KOTAK JABATAN ---
 const JabatanNode = ({ data }) => (
-  <div className="bg-white border-2 border-[#0B5D34] rounded-lg p-3 md:p-4 shadow-lg min-w-[180px] md:min-w-[220px] text-center relative">
-    
-    {/* Titik penghubung transparan agar garis bisa nyambung */}
-    <Handle type="source" position={Position.Top} id="top" className="opacity-0 w-1 h-1" />
-    <Handle type="source" position={Position.Left} id="left" className="opacity-0 w-1 h-1" />
-    <Handle type="source" position={Position.Right} id="right" className="opacity-0 w-1 h-1" />
-    <Handle type="source" position={Position.Bottom} id="bottom" className="opacity-0 w-1 h-1" />
+  <div className="bg-off-white border-2 border-forest-green rounded-lg p-3 shadow-md min-w-[200px] text-center relative">
+    {/* Titik penghubung transparan */}
+    <Handle
+      type="source"
+      position={Position.Top}
+      id="top"
+      className="opacity-0 w-3 h-3"
+    />
+    <Handle
+      type="source"
+      position={Position.Left}
+      id="left"
+      className="opacity-0 w-3 h-3"
+    />
+    <Handle
+      type="source"
+      position={Position.Right}
+      id="right"
+      className="opacity-0 w-3 h-3"
+    />
+    <Handle
+      type="source"
+      position={Position.Bottom}
+      id="bottom"
+      className="opacity-0 w-3 h-3"
+    />
 
-    <div className="font-bold text-[#0B5D34] border-b border-gray-200 pb-2 mb-2 text-sm md:text-base">
+    <div className="font-bold text-forest-green border-b border-sage-green/30 pb-2 mb-2 text-sm">
       {data.jabatan}
     </div>
-    <div className="text-xs md:text-sm font-semibold text-gray-700">
-      {data.nama}
-    </div>
+    <div className="text-sm font-semibold text-charcoal">{data.nama}</div>
   </div>
 );
 
-// Dideklarasikan di luar komponen utama agar tidak re-render terus-menerus
 const nodeTypes = { jabatan: JabatanNode };
 
 export default function StrukturContent() {
@@ -66,57 +81,56 @@ export default function StrukturContent() {
   // --- STATE UNTUK REACT FLOW (STRUKTUR ORGANISASI) ---
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
-  const [defaultNodes, setDefaultNodes] = useState([]); 
+  const [defaultNodes, setDefaultNodes] = useState([]);
 
   useEffect(() => {
     const fetchStrukturPublic = async () => {
       try {
-        // Ambil data dari backend (bisa pakai axios biasa karena ini jalur publik)
-        // Sesuaikan import API/axios jika berbeda
-        const response = await fetch(`http://${window.location.hostname}:5000/api/struktur-nodes`);
+        const response = await fetch(
+          `http://${window.location.hostname}:5000/api/struktur-nodes`
+        );
         const rawData = await response.json();
 
         if (rawData && rawData.length > 0) {
-          // 1. Kembalikan format Kotak (Nodes)
-          const fetchedNodes = rawData.map(item => ({
+          const fetchedNodes = rawData.map((item) => ({
             id: item.id,
             position: { x: item.posX, y: item.posY },
             data: { jabatan: item.jabatan, nama: item.nama },
-            type: 'jabatan'
+            type: 'jabatan',
           }));
 
-          // 2. Kembalikan format Garis (Edges) dari JSON yang kita simpan di parentId
           const fetchedEdges = [];
-          rawData.forEach(item => {
+          rawData.forEach((item) => {
             if (item.parentId) {
               const incomingEdges = JSON.parse(item.parentId);
-              incomingEdges.forEach(edgeData => {
-                
+              incomingEdges.forEach((edgeData) => {
                 const isKoordinasi = edgeData.tipeGaris === 'koordinasi';
 
                 fetchedEdges.push({
-                  id: `e-${edgeData.source}-${item.id}-${Math.random().toString(36).substring(7)}`,
+                  id: `e-${edgeData.source}-${item.id}-${Math.random()
+                    .toString(36)
+                    .substring(7)}`,
                   source: edgeData.source,
                   target: item.id,
                   sourceHandle: edgeData.sourceHandle || 'bottom',
                   targetHandle: edgeData.targetHandle || 'top',
-                  type: 'smoothstep', // Bentuk Siku-siku
+                  type: 'smoothstep',
                   style: {
                     strokeWidth: 2,
-                    stroke: isKoordinasi ? '#f59e0b' : '#2563eb', // Oranye (koordinasi) & Biru (komando)
-                    strokeDasharray: isKoordinasi ? '5,5' : 'none'
-                  }
+                    stroke: isKoordinasi ? '#397A57' : '#174D36', // Sage Green (koordinasi) & Forest Green (komando)
+                    strokeDasharray: isKoordinasi ? '5,5' : 'none',
+                  },
                 });
               });
             }
           });
 
-          // Masukkan ke state React Flow
           setNodes(fetchedNodes);
+          setDefaultNodes(fetchedNodes);
           setEdges(fetchedEdges);
         }
       } catch (error) {
-        console.error("Gagal mengambil data struktur organisasi:", error);
+        console.error('Gagal mengambil data struktur organisasi:', error);
       }
     };
 
@@ -129,155 +143,227 @@ export default function StrukturContent() {
   );
 
   const handleReset = () => {
-    setNodes(defaultNodes); 
+    setNodes(defaultNodes);
   };
 
   return (
     <div className="max-w-[1400px] mx-auto px-5 md:px-[64px] mt-12 md:mt-16 flex flex-col gap-16 md:gap-24 mb-20">
-      
       {/* --- BAGIAN 1: STRUKTUR ORGANISASI (INTERAKTIF) --- */}
-      <section ref={addToRefs} className="opacity-0 translate-y-24 transition-all duration-700 ease-out w-full">
+      <section
+        ref={addToRefs}
+        className="opacity-0 translate-y-24 transition-all duration-700 ease-out w-full"
+      >
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">Struktur Organisasi</h2>
-            <p className="text-sm md:text-base text-slate-800 max-w-3xl">
+            <h2 className="text-2xl md:text-3xl font-bold text-forest-green border-b-2 border-sage-green pb-2 inline-block mb-3">
+              Struktur Organisasi
+            </h2>
+            <p className="text-sm md:text-base text-charcoal max-w-3xl leading-relaxed">
               Berdasarkan Undang Undang Nomor 23 Tahun 2014 Tentang Pemerintah Daerah, berikut adalah Susunan Organisasi dan Tata Kerja Pemerintah Kabupaten Bekasi.
               <br />
-              <span className="text-[#0B5D34] font-medium text-xs md:text-sm italic">
+              <span className="text-sage-green font-medium text-xs md:text-sm italic">
                 *Geser kotak untuk merapikan, scroll untuk zoom. Tekan reset untuk mengembalikan tampilan.
               </span>
             </p>
           </div>
-          <button 
+          <button
             onClick={handleReset}
-            className="px-4 py-2 text-sm bg-[#FACC15] text-[#0B5D34] font-bold rounded-lg hover:bg-yellow-500 transition-colors shadow-md whitespace-nowrap"
+            className="px-4 py-2 text-sm bg-forest-green text-off-white font-bold rounded-lg hover:bg-sage-green transition-colors shadow-md whitespace-nowrap"
           >
             Reset Tampilan
           </button>
         </div>
-        
-       {/* Canvas React Flow */}
-        <div className="relative w-full bg-[#f8f9fa] rounded-xl flex items-center justify-center h-[400px] md:h-[500px] border-2 border-slate-200 overflow-hidden shadow-inner">
-          
-          {/* CEGAH BLANK: Render ReactFlow HANYA jika node sudah ada isinya */}
+
+        {/* Canvas React Flow (Mint Gray) */}
+        <div className="relative w-full bg-mint-gray rounded-xl flex items-center justify-center h-[400px] md:h-[500px] border-2 border-sage-green/30 overflow-hidden shadow-inner">
           {nodes.length > 0 ? (
-            <ReactFlow 
-              nodes={nodes} 
-              edges={edges} 
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
               onNodesChange={onNodesChange}
               nodeTypes={nodeTypes}
-              fitView 
+              fitView
               minZoom={0.2}
               maxZoom={2}
               attributionPosition="bottom-left"
               connectionMode={ConnectionMode.Loose}
             >
-              <Background color="#ccc" gap={16} />
+              <Background color="#397A57" gap={16} />
               <Controls />
             </ReactFlow>
           ) : (
-            <div className="text-slate-500 font-medium animate-pulse">Memuat Struktur Organisasi...</div>
+            <div className="text-forest-green font-medium animate-pulse">
+              Memuat Struktur Organisasi...
+            </div>
           )}
+        </div>
 
-          {/* KETERANGAN GARIS (LEGEND) TETAP DI SINI */}
-          <div style={{
-            position: 'absolute', 
-            bottom: '20px', 
-            left: '20px', 
-            backgroundColor: 'white', 
-            padding: '10px 15px', 
-            borderRadius: '8px', 
-            boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-            zIndex: 10
-          }}>
-            <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: 'bold' }}>Keterangan:</h4>
-            
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-              <div style={{ width: '30px', borderBottom: '2px solid #000', marginRight: '10px' }}></div>
-              <span style={{ fontSize: '12px' }}>Garis Komando</span>
-            </div>
+        {/* KETERANGAN GARIS (LEGEND) */}
+        <div className="mt-4 bg-mint-gray px-5 py-3.5 rounded-lg border border-sage-green/25 shadow-sm inline-flex flex-wrap items-center gap-4 md:gap-6">
+          <span className="text-sm font-bold text-forest-green">
+            Keterangan:
+          </span>
 
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <div style={{ width: '30px', borderBottom: '2px dashed #000', marginRight: '10px' }}></div>
-              <span style={{ fontSize: '12px' }}>Garis Koordinasi</span>
-            </div>
+          <div className="flex items-center gap-2">
+            <div className="w-8 border-b-2 border-forest-green"></div>
+            <span className="text-xs md:text-sm text-charcoal font-medium">
+              Garis Komando
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="w-8 border-b-2 border-dashed border-sage-green"></div>
+            <span className="text-xs md:text-sm text-charcoal font-medium">
+              Garis Koordinasi
+            </span>
           </div>
         </div>
       </section>
 
       {/* --- BAGIAN 2: TUGAS POKOK DAN FUNGSI --- */}
-      <section ref={addToRefs} className="opacity-0 translate-y-24 transition-all duration-700 ease-out w-full">
-        <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-8">Tugas Pokok dan Fungsi</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          
-          {/* Card 1: Sekretariat Daerah */}
-          <div className="bg-white rounded-xl shadow-md border border-slate-100 overflow-hidden hover:shadow-lg transition-shadow">
-            <div className="h-48 bg-slate-200 overflow-hidden">
-              <img src="https://images.unsplash.com/photo-1541872703-74c5e44368f9?q=80&w=800&auto=format&fit=crop" alt="Sekretariat Daerah" className="w-full h-full object-cover" />
+      <section
+        ref={addToRefs}
+        className="opacity-0 translate-y-24 transition-all duration-700 ease-out w-full"
+      >
+        <div className="mb-10">
+          <h2 className="text-2xl md:text-3xl font-bold text-forest-green border-b-2 border-sage-green pb-2 inline-block">
+            Tugas Pokok dan Fungsi
+          </h2>
+        </div>
+
+        <div className="flex flex-col gap-16 md:gap-20">
+          {/* 1. SEKRETARIAT DAERAH (Foto Kiri, Teks Kanan) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center">
+            <div className="group overflow-hidden rounded-2xl shadow-lg border border-sage-green/20 h-64 md:h-80">
+              <img
+                src="https://images.unsplash.com/photo-1541872703-74c5e44368f9?q=80&w=800&auto=format&fit=crop"
+                alt="Sekretariat Daerah"
+                className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+              />
             </div>
-            <div className="p-6">
-              <h3 className="text-xl font-bold text-[#0B5D34] mb-3">Sekretariat Daerah</h3>
-              <p className="text-slate-600 text-sm mb-4 line-clamp-3">
-                Sekretariat Daerah merupakan unsur staf Pemerintah Daerah yang dipimpin oleh Sekretaris Daerah. Memiliki tugas membantu Bupati dalam penyusunan kebijakan dan pengoordinasian administratif.
+
+            <div>
+              <h3 className="text-xl md:text-2xl font-bold text-forest-green mb-3">
+                Sekretariat Daerah
+              </h3>
+              <p className="text-charcoal text-sm md:text-base mb-5 leading-relaxed">
+                Sekretariat Daerah dipimpin oleh{' '}
+                <strong className="text-forest-green">Sekretaris Daerah.</strong>
               </p>
-              <button className="flex items-center text-sm font-semibold text-[#FACC15] hover:text-yellow-600 transition-colors">
-                Baca Selengkapnya <ChevronRight size={16} className="ml-1" />
-              </button>
+              <p className="text-charcoal text-sm text-justify md:text-base mb-5 leading-relaxed">
+                Sekretaris Daerah mempunyai tugas membantu kepala daerah dalam penyusunan kebijakan dan pengoordinasian administratif terhadap pelaksanaan tugas Perangkat Daerah serta pelayanan administratif.
+              </p>
             </div>
           </div>
 
-          {/* Card 2: Sekretariat DPRD */}
-          <div className="bg-white rounded-xl shadow-md border border-slate-100 overflow-hidden hover:shadow-lg transition-shadow">
-            <div className="h-48 bg-slate-200 overflow-hidden">
-              <img src="https://images.unsplash.com/photo-1577493340887-b7bfff550145?q=80&w=800&auto=format&fit=crop" alt="Sekretariat DPRD" className="w-full h-full object-cover" />
-            </div>
-            <div className="p-6">
-              <h3 className="text-xl font-bold text-[#0B5D34] mb-3">Sekretariat DPRD</h3>
-              <p className="text-slate-600 text-sm mb-4 line-clamp-3">
-                Sekretariat DPRD merupakan unsur pelayanan administrasi dan pemberian dukungan operasional kepada DPRD. Dipimpin oleh Sekretaris DPRD.
+          {/* 2. SEKRETARIAT DPRD (Teks & Kotak Tugas Kiri, Foto Kanan) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-stretch">
+            <div className="order-2 lg:order-1">
+              <h3 className="text-xl md:text-2xl font-bold text-forest-green mb-3">
+                Sekretariat DPRD
+              </h3>
+              <p className="text-charcoal text-sm md:text-base mb-5 leading-relaxed">
+                Sekretariat DPRD dipimpin oleh{' '}
+                <strong className="text-forest-green">Sekretaris DPRD.</strong>
               </p>
-              <button className="flex items-center text-sm font-semibold text-[#FACC15] hover:text-yellow-600 transition-colors">
-                Baca Selengkapnya <ChevronRight size={16} className="ml-1" />
-              </button>
+              <p className="text-charcoal text-sm md:text-base mb-5 leading-relaxed">
+                Sekretaris DPRD mempunyai tugas:
+              </p>
+
+              {/* Grid Kotak Tugas: 3 di atas, 1 memanjang penuh di bawah */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 text-center">
+                {[
+                  'Menyelenggarakan administrasi kesekretariatan',
+                  'Menyelenggarakan administrasi keuangan',
+                  'Mendukung pelaksanaan tugas dan fungsi DPRD',
+                  'Menyediakan dan mengoordinasikan tenaga ahli yang diperlukan oleh DPRD dalam melaksanakan fungsinya sesuai dengan kebutuhan',
+                ].map((tugas, index) => (
+                  <div
+                    key={index}
+                    className={`group bg-mint-gray border border-sage-green/20 rounded-xl p-4 shadow-sm transition-all duration-300 ease-in-out hover:bg-sage-green hover:border-sage-green hover:shadow-md cursor-default flex items-center justify-center ${
+                      index === 3 ? 'sm:col-span-3' : ''
+                    }`}
+                  >
+                    <p className="text-xs md:text-sm font-medium text-charcoal group-hover:text-off-white transition-colors duration-300 leading-relaxed">
+                      {tugas}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <p className="text-charcoal text-justify text-sm md:text-base mt-5 leading-relaxed">
+                Sekretaris DPRD dalam melaksanakan tugasnya secara teknis operasional bertanggung jawab kepada pimpinan DPRD dan secara administratif bertanggung jawab kepada kepala daerah melalui Sekretaris Daerah.
+              </p>
+            </div>
+
+            <div className="order-1 lg:order-2 group overflow-hidden rounded-2xl shadow-lg border border-sage-green/20 h-64 md:h-80 lg:h-auto relative">
+              <img
+                src="https://images.unsplash.com/photo-1577493340887-b7bfff550145?q=80&w=800&auto=format&fit=crop"
+                alt="Sekretariat DPRD"
+                className="w-full h-full lg:absolute lg:inset-0 object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+              />
             </div>
           </div>
 
-          {/* Card 3: Inspektorat Daerah */}
-          <div className="bg-white rounded-xl shadow-md border border-slate-100 overflow-hidden hover:shadow-lg transition-shadow">
-            <div className="h-48 bg-slate-200 overflow-hidden">
-              <img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=800&auto=format&fit=crop" alt="Inspektorat Daerah" className="w-full h-full object-cover" />
+          {/* 3. INSPEKTORAT (Foto Kiri, Teks Kanan) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center">
+            <div className="group overflow-hidden rounded-2xl shadow-lg border border-sage-green/20 h-64 md:h-80">
+              <img
+                src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=800&auto=format&fit=crop"
+                alt="Inspektorat"
+                className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+              />
             </div>
-            <div className="p-6">
-              <h3 className="text-xl font-bold text-[#0B5D34] mb-3">Inspektorat Daerah</h3>
-              <p className="text-slate-600 text-sm mb-4 line-clamp-3">
-                Inspektorat Daerah merupakan unsur pengawas penyelenggaraan Pemerintahan Daerah. Dipimpin oleh Inspektur yang bertanggung jawab langsung kepada Bupati.
+
+            <div>
+              <h3 className="text-xl md:text-2xl font-bold text-forest-green mb-3">
+                Inspektorat
+              </h3>
+              <p className="text-charcoal text-justify text-sm md:text-base mb-5 leading-relaxed">
+                Inspektorat Daerah dipimpin oleh{' '}
+                <strong className="text-forest-green">Inspektur.</strong>
               </p>
-              <button className="flex items-center text-sm font-semibold text-[#FACC15] hover:text-yellow-600 transition-colors">
-                Baca Selengkapnya <ChevronRight size={16} className="ml-1" />
-              </button>
+              <p className="text-charcoal text-justify text-sm md:text-base mb-5 leading-relaxed">
+                Inspektorat Daerah mempunyai tugas{' '}
+                <strong className="text-forest-green">
+                  membantu kepala daerah membina dan mengawasi pelaksanaan Urusan Pemerintahan yang menjadi kewenangan Daerah dan Tugas Pembantuan oleh Perangkat Daerah.
+                </strong>
+              </p>
+              <p className="text-charcoal text-justify text-sm md:text-base mb-5 leading-relaxed">
+                Inspektorat Daerah dalam melaksanakan tugasnya bertanggung jawab kepada kepala daerah melalui Sekretaris Daerah.
+              </p>
             </div>
           </div>
 
-          {/* Card 4: Dinas Daerah */}
-          <div className="bg-white rounded-xl shadow-md border border-slate-100 overflow-hidden hover:shadow-lg transition-shadow">
-            <div className="h-48 bg-slate-200 overflow-hidden">
-              <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=800&auto=format&fit=crop" alt="Dinas Daerah" className="w-full h-full object-cover" />
-            </div>
-            <div className="p-6">
-              <h3 className="text-xl font-bold text-[#0B5D34] mb-3">Dinas Daerah</h3>
-              <p className="text-slate-600 text-sm mb-4 line-clamp-3">
-                Dinas Daerah merupakan unsur pelaksana urusan pemerintahan yang menjadi kewenangan daerah. Dipimpin oleh Kepala Dinas.
+          {/* 4. DINAS DAERAH (Teks Kiri, Foto Kanan) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center">
+            <div className="order-2 lg:order-1">
+              <h3 className="text-xl md:text-2xl font-bold text-forest-green mb-3">
+                Dinas Daerah
+              </h3>
+              <p className="text-charcoal text-justify text-sm md:text-base mb-5 leading-relaxed">
+                Dinas dibentuk untuk melaksanakan Urusan Pemerintahan yang menjadi kewenangan Daerah. Dinas dipimpin oleh seorang{' '}
+                <strong className="text-forest-green">Kepala.</strong>
               </p>
-              <button className="flex items-center text-sm font-semibold text-[#FACC15] hover:text-yellow-600 transition-colors">
-                Baca Selengkapnya <ChevronRight size={16} className="ml-1" />
-              </button>
+              <p className="text-charcoal text-justify text-sm md:text-base mb-5 leading-relaxed">
+                Kepala Dinas mempunyai tugas{' '}
+                <strong className="text-forest-green">
+                  membantu kepala daerah melaksanakan Urusan Pemerintahan yang menjadi kewenangan Daerah.
+                </strong>{' '}
+                Kepala Dinas dalam melaksanakan tugasnya bertanggung jawab kepada kepala daerah melalui Sekretaris Daerah.
+              </p>
+            </div>
+
+            <div className="order-1 lg:order-2 group overflow-hidden rounded-2xl shadow-lg border border-sage-green/20 h-64 md:h-80">
+              <img
+                src="https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=800&auto=format&fit=crop"
+                alt="Dinas Daerah"
+                className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+              />
             </div>
           </div>
-
         </div>
       </section>
-
     </div>
   );
 }

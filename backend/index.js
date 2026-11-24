@@ -50,21 +50,28 @@ app.post("/api/admin/login", async (req, res) => {
     if (!isPasswordValid)
       return res.status(401).json({ message: "Email atau kata sandi salah." });
 
-    const token = jwt.sign({ id: admin.id, email: admin.email }, JWT_SECRET, {
-      expiresIn: "1d",
-    });
+    const token = jwt.sign(
+      { id: admin.id, email: admin.email, role: admin.role },
+      JWT_SECRET,
+      { expiresIn: "1d" },
+    );
 
     res.json({
       message: "Login berhasil",
       token: token,
-      admin: { id: admin.id, name: admin.name, email: admin.email },
+      admin: {
+        id: admin.id,
+        name: admin.name,
+        email: admin.email,
+        role: admin.role,
+      },
     });
   } catch (error) {
     res.status(500).json({ message: "Gagal melakukan proses login", error });
   }
 });
 
-// Middleware untuk mengunci rute Admin
+// Middleware untuk mengunci rute Admin (Admin & Super Admin)
 const authenticateAdmin = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
@@ -76,10 +83,6 @@ const authenticateAdmin = (req, res, next) => {
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) {
-      // ===== TAMBAHAN UNTUK DEBUGGING =====
-      console.log("❌ TOKEN DITOLAK KARENA:", err.message);
-      console.log("👉 BENTUK TOKEN YANG DITERIMA:", token);
-      // ====================================
       return res
         .status(403)
         .json({ message: "Sesi telah habis atau token tidak valid." });
@@ -87,6 +90,16 @@ const authenticateAdmin = (req, res, next) => {
     req.user = user;
     next();
   });
+};
+
+// Middleware khusus Super Admin
+const authorizeSuperAdmin = (req, res, next) => {
+  if (!req.user || req.user.role !== "SUPER_ADMIN") {
+    return res
+      .status(403)
+      .json({ message: "Akses ditolak. Hanya Super Admin yang diizinkan." });
+  }
+  next();
 };
 
 // ==========================================
@@ -352,6 +365,8 @@ app.get("/api/kecamatan", async (req, res) => {
       orderBy: { id: "desc" },
     });
 
+    const hostUrl = `${req.protocol}://${req.get("host")}`;
+
     const mappedData = data.map((item) => {
       const listKelurahan =
         item.desaKelurahan
@@ -363,12 +378,17 @@ app.get("/api/kecamatan", async (req, res) => {
           ?.filter((dk) => dk.kategori === "DESA")
           .map((dk) => dk.namaWilayah) || [];
 
+      const fixedFoto = item.gambar
+        ? item.gambar.replace(/^https?:\/\/[^/]+/, hostUrl)
+        : null;
+
       return {
         ...item,
+        gambar: fixedFoto,
         namaKecamatan: item.title,
         namaKelurahan: listKelurahan,
         namaDesa: listDesa,
-        foto: item.gambar,
+        foto: fixedFoto,
       };
     });
 
@@ -749,7 +769,172 @@ app.delete(
   },
 );
 
+// ==========================================
+// 4. ENDPOINT KELOLA ADMIN (Khusus Super Admin)
+// ==========================================
+app.get(
+  "/api/admin/users",
+  authenticateAdmin,
+  authorizeSuperAdmin,
+  async (req, res) => {
+    try {
+      const admins = await prisma.admin.findMany({
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
+        orderBy: { id: "asc" },
+      });
+      res.json(admins);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Gagal mengambil data admin", error: error.message });
+    }
+  },
+);
+
+app.post(
+  "/api/admin/users",
+  authenticateAdmin,
+  authorizeSuperAdmin,
+  async (req, res) => {
+    try {
+      const { name, email, password, role } = req.body;
+      if (!name || !email || !password) {
+        return res
+          .status(400)
+          .json({ message: "Nama, email, dan kata sandi wajib diisi." });
+      }
+
+      const existing = await prisma.admin.findUnique({ where: { email } });
+      if (existing) {
+        return res.status(400).json({ message: "Email sudah terdaftar." });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const validRole = role === "SUPER_ADMIN" ? "SUPER_ADMIN" : "ADMIN";
+
+      const newAdmin = await prisma.admin.create({
+        data: {
+          name,
+          email,
+          password: hashedPassword,
+          role: validRole,
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
+      });
+
+      res
+        .status(201)
+        .json({ message: "Admin berhasil ditambahkan", data: newAdmin });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Gagal menambah admin", error: error.message });
+    }
+  },
+);
+
+app.put(
+  "/api/admin/users/:id",
+  authenticateAdmin,
+  authorizeSuperAdmin,
+  async (req, res) => {
+    try {
+      const targetId = parseInt(req.params.id);
+      const { name, email, password, role } = req.body;
+      const validRole = role === "SUPER_ADMIN" ? "SUPER_ADMIN" : "ADMIN";
+
+      if (targetId === req.user.id && validRole !== "SUPER_ADMIN") {
+        return res.status(400).json({
+          message: "Anda tidak dapat menurunkan role akun Anda sendiri.",
+        });
+      }
+
+      const updateData = {
+        name,
+        email,
+        role: validRole,
+      };
+
+      if (password && password.trim() !== "") {
+        updateData.password = await bcrypt.hash(password, 10);
+      }
+
+      const updatedAdmin = await prisma.admin.update({
+        where: { id: targetId },
+        data: updateData,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
+      });
+
+      res.json({ message: "Data admin diperbarui", data: updatedAdmin });
+    } catch (error) {
+      if (error.code === "P2002") {
+        return res
+          .status(400)
+          .json({ message: "Email sudah digunakan admin lain." });
+      }
+      res
+        .status(500)
+        .json({ message: "Gagal memperbarui admin", error: error.message });
+    }
+  },
+);
+
+app.delete(
+  "/api/admin/users/:id",
+  authenticateAdmin,
+  authorizeSuperAdmin,
+  async (req, res) => {
+    try {
+      const targetId = parseInt(req.params.id);
+      if (targetId === req.user.id) {
+        return res.status(400).json({
+          message:
+            "Anda tidak dapat menghapus akun Anda sendiri yang sedang login.",
+        });
+      }
+
+      await prisma.admin.delete({ where: { id: targetId } });
+      res.json({ message: "Akun admin berhasil dihapus" });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Gagal menghapus admin", error: error.message });
+    }
+  },
+);
+
+// Otomatis enkripsi password jika ada yang diinput manual lewat Prisma Studio
+async function autoHashPlainPasswords() {
+  const admins = await prisma.admin.findMany();
+  for (const admin of admins) {
+    if (admin.password && !admin.password.startsWith("$2")) {
+      const hashedPassword = await bcrypt.hash(admin.password, 10);
+      await prisma.admin.update({
+        where: { id: admin.id },
+        data: { password: hashedPassword },
+      });
+      console.log(`🔒 Password untuk ${admin.email} otomatis dienkripsi.`);
+    }
+  }
+}
+autoHashPlainPasswords();
+
 // START SERVER
 app.listen(5000, "0.0.0.0", () => {
-  console.log("Server jalan di port 5000 dan terbuka untuk semua jaringan");
+  console.log("Server berjalan di port 5000");
 });

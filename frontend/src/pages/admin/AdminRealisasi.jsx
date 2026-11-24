@@ -6,10 +6,10 @@ export default function AdminRealisasi() {
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  
+
   const [formData, setFormData] = useState({ id: null, year: '', amount: '' });
 
-    const fetchData = async () => {
+  const fetchData = async () => {
     setIsLoading(true);
     try {
       const res = await API.get('/realisasi-anggaran');
@@ -74,21 +74,29 @@ export default function AdminRealisasi() {
   };
 
   return (
-    <div className="p-6 md:p-8 bg-white rounded-xl shadow-sm border border-slate-200">
+    <div className="p-6 md:p-8 bg-off-white text-charcoal rounded-xl shadow-sm border border-sage-green/25">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-24 font-bold text-gov-navy">Kelola Realisasi Anggaran</h2>
+        <h2 className="text-24 font-bold text-forest-green">Kelola Realisasi Anggaran</h2>
         <button
-          onClick={() => { resetForm(); setShowForm(true); }}
-          className="bg-bekasi-green text-white px-4 py-2 rounded-lg hover:bg-green-700 transition font-medium"
+          onClick={() => {
+            resetForm();
+            setShowForm(true);
+          }}
+          className="bg-forest-green text-off-white px-4 py-2 rounded-lg hover:bg-sage-green transition font-medium"
         >
           + Tambah Data
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleSave} className="bg-slate-50 p-6 rounded-lg border border-slate-200 mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <form
+          onSubmit={handleSave}
+          className="bg-mint-gray p-6 rounded-lg border border-sage-green/25 mb-8 grid grid-cols-1 md:grid-cols-2 gap-4"
+        >
           <div>
-            <label className="block text-14 font-semibold text-slate-700 mb-1">Tahun Anggaran</label>
+            <label className="block text-14 font-semibold text-charcoal mb-1">
+              Tahun Anggaran
+            </label>
             <input
               type="number"
               name="year"
@@ -96,11 +104,13 @@ export default function AdminRealisasi() {
               placeholder="Contoh: 2024"
               value={formData.year}
               onChange={handleInputChange}
-              className="w-full border border-slate-300 rounded-md px-4 py-2 outline-none focus:border-bekasi-green"
+              className="w-full bg-off-white text-charcoal border border-sage-green/30 rounded-md px-4 py-2 outline-none focus:border-forest-green focus:ring-1 focus:ring-sage-green"
             />
           </div>
           <div>
-            <label className="block text-14 font-semibold text-slate-700 mb-1">Jumlah Anggaran (Nilai Penuh)</label>
+            <label className="block text-14 font-semibold text-charcoal mb-1">
+              Jumlah Anggaran (Nilai Penuh)
+            </label>
             <input
               type="number"
               name="amount"
@@ -108,15 +118,24 @@ export default function AdminRealisasi() {
               placeholder="Contoh: 315000000000"
               value={formData.amount}
               onChange={handleInputChange}
-              className="w-full border border-slate-300 rounded-md px-4 py-2 outline-none focus:border-bekasi-green"
+              className="w-full bg-off-white text-charcoal border border-sage-green/30 rounded-md px-4 py-2 outline-none focus:border-forest-green focus:ring-1 focus:ring-sage-green"
             />
-            <p className="text-12 text-slate-500 mt-1">*Masukkan angka secara penuh tanpa titik. Contoh: 300 Miliar ditulis 300000000000</p>
+            <p className="text-12 text-charcoal/75 mt-1">
+              *Masukkan angka secara penuh tanpa titik. Contoh: 300 Miliar ditulis 300000000000
+            </p>
           </div>
           <div className="md:col-span-2 flex justify-end gap-3 mt-2">
-            <button type="button" onClick={resetForm} className="px-4 py-2 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-200 transition">
+            <button
+              type="button"
+              onClick={resetForm}
+              className="px-4 py-2 border border-sage-green/30 bg-off-white rounded-lg text-charcoal hover:bg-mint-gray transition"
+            >
               Batal
             </button>
-            <button type="submit" className="px-4 py-2 bg-gov-navy text-white rounded-lg hover:bg-blue-900 transition">
+            <button
+              type="submit"
+              className="px-4 py-2 bg-forest-green text-off-white rounded-lg hover:bg-sage-green transition font-medium"
+            >
               {isEditing ? 'Simpan Perubahan' : 'Simpan Data'}
             </button>
           </div>
@@ -124,32 +143,57 @@ export default function AdminRealisasi() {
       )}
 
       {isLoading ? (
-        <div className="text-center py-10 text-slate-500">Memuat data...</div>
+        <div className="text-center py-10 text-forest-green font-medium">Memuat data...</div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse border border-slate-200">
-            <thead className="bg-slate-100">
+          <table className="w-full border-collapse border border-sage-green/25">
+            <thead className="bg-forest-green text-off-white">
               <tr>
-                <th className="border border-slate-200 px-4 py-3 text-left text-sm font-semibold text-slate-700">Tahun</th>
-                <th className="border border-slate-200 px-4 py-3 text-left text-sm font-semibold text-slate-700">Jumlah Anggaran (Rp)</th>
-                <th className="border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700 w-40">Aksi</th>
+                <th className="border border-sage-green/30 px-4 py-3 text-left text-sm font-semibold">
+                  Tahun
+                </th>
+                <th className="border border-sage-green/30 px-4 py-3 text-left text-sm font-semibold">
+                  Jumlah Anggaran (Rp)
+                </th>
+                <th className="border border-sage-green/30 px-4 py-3 text-center text-sm font-semibold w-40">
+                  Aksi
+                </th>
               </tr>
             </thead>
             <tbody>
               {data.length > 0 ? (
                 data.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50">
-                    <td className="border border-slate-200 px-4 py-3 font-medium text-slate-800">{item.year}</td>
-                    <td className="border border-slate-200 px-4 py-3 text-slate-600">Rp {Number(item.amount).toLocaleString('id-ID')}</td>
-                    <td className="border border-slate-200 px-4 py-3 text-center">
-                      <button onClick={() => handleEdit(item)} className="text-blue-600 hover:underline mr-3 text-sm font-medium">Edit</button>
-                      <button onClick={() => handleDelete(item.id)} className="text-red-600 hover:underline text-sm font-medium">Hapus</button>
+                  <tr key={item.id} className="hover:bg-mint-gray/50 transition-colors">
+                    <td className="border border-sage-green/20 px-4 py-3 font-bold text-forest-green">
+                      {item.year}
+                    </td>
+                    <td className="border border-sage-green/20 px-4 py-3 text-charcoal">
+                      Rp {Number(item.amount).toLocaleString('id-ID')}
+                    </td>
+                    <td className="border border-sage-green/20 px-4 py-3 text-center">
+                      <button
+                        onClick={() => handleEdit(item)}
+                        className="text-forest-green hover:text-sage-green hover:underline mr-3 text-sm font-semibold"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        className="text-red-600 hover:underline text-sm font-semibold"
+                      >
+                        Hapus
+                      </button>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="3" className="text-center py-6 text-slate-500 border border-slate-200">Belum ada data anggaran.</td>
+                  <td
+                    colSpan="3"
+                    className="text-center py-6 text-charcoal/70 border border-sage-green/20"
+                  >
+                    Belum ada data anggaran.
+                  </td>
                 </tr>
               )}
             </tbody>

@@ -9,14 +9,10 @@ export default function Navbar() {
   const [mobileExpandedMenu, setMobileExpandedMenu] = useState(null);
   const location = useLocation();
   const [activeMenu, setActiveMenu] = useState('tentang');
-  
-  // State baru untuk mendeteksi apakah layar sedang di-scroll
   const [isScrolled, setIsScrolled] = useState(false);
 
-  // Memantau pergerakan scroll
   useEffect(() => {
     const handleScroll = () => {
-      // Jika scroll lebih dari 20px dari atas, set isScrolled ke true
       if (window.scrollY > 20) {
         setIsScrolled(true);
       } else {
@@ -28,14 +24,18 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Menyesuaikan menu utama yang aktif berdasarkan URL & Scroll ke atas
   useEffect(() => {
     window.scrollTo(0, 0);
 
     const path = location.pathname.toLowerCase();
     if (path.includes('tentang')) {
       setActiveMenu('tentang');
-    } else if (path.includes('pemerintahan') || path.includes('pimpinan') || path.includes('struktur') || path.includes('perangkat')) {
+    } else if (
+      path.includes('pemerintahan') ||
+      path.includes('pimpinan') ||
+      path.includes('struktur') ||
+      path.includes('perangkat')
+    ) {
       setActiveMenu('pemerintahan');
     } else {
       setActiveMenu(null);
@@ -46,7 +46,6 @@ export default function Navbar() {
     setActiveMenu(activeMenu === menu ? null : menu);
   };
 
-  // Kunci scroll saat hamburger menu terbuka
   useEffect(() => {
     if (isMobileMenuOpen) {
       document.body.style.overflow = 'hidden';
@@ -54,7 +53,7 @@ export default function Navbar() {
       document.body.style.overflow = 'unset';
       setMobileExpandedMenu(null);
     }
-    
+
     return () => {
       document.body.style.overflow = 'unset';
     };
@@ -77,46 +76,48 @@ export default function Navbar() {
     { title: 'Daftar Perangkat', path: '/pemerintahan/DaftarPerangkat' },
   ];
 
-  const activeSubMenuList = activeMenu === 'tentang' ? subMenuTentang 
-                          : activeMenu === 'pemerintahan' ? subMenuPemerintahan 
-                          : [];
+  const activeSubMenuList =
+    activeMenu === 'tentang'
+      ? subMenuTentang
+      : activeMenu === 'pemerintahan'
+      ? subMenuPemerintahan
+      : [];
 
   return (
-    <header 
-      // Background berubah dinamis berdasarkan state isScrolled
-      className={`w-full text-white sticky top-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-bekasi-green/90 backdrop-blur-md shadow-md' 
-          : 'bg-bekasi-green shadow-none'
+    <header
+      className={`w-full text-off-white sticky top-0 z-50 transition-all duration-300 ${
+        isScrolled
+          ? 'bg-forest-green/95 backdrop-blur-md shadow-md'
+          : 'bg-forest-green shadow-none'
       }`}
     >
       {/* ================= BARIS UTAMA (TOP NAV) ================= */}
       <div className="max-w-[1728px] mx-auto px-5 md:px-[64px] h-20 flex items-center justify-between">
-        
         {/* LOGO & IDENTITAS */}
         <Link to="/" className="flex items-center gap-3 shrink-0 group">
-          <img 
-            src={logoBekasi} 
-            alt="Logo Kabupaten Bekasi" 
-            className="h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300" 
+          <img
+            src={logoBekasi}
+            alt="Logo Kabupaten Bekasi"
+            className="h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
           />
           <div className="flex flex-col">
-            <span className="font-bold text-18 md:text-20 leading-tight transition-colors group-hover:text-bekasi-gold">
+            <span className="font-bold text-18 md:text-20 leading-tight text-off-white transition-colors group-hover:text-mint-gray">
               BekasiKab
             </span>
-            <span className="hidden md:block text-12 text-white/80 leading-tight">
+            <span className="hidden md:block text-12 text-mint-gray/85 leading-tight">
               Pemerintah Daerah Kabupaten Bekasi
             </span>
           </div>
         </Link>
 
         {/* MENU UTAMA DESKTOP */}
-        <nav className="hidden md:flex items-center gap-8 text-16">
-          
-          <button 
+        <nav className="hidden md:flex items-center gap-4 text-16">
+          <button
             onClick={() => toggleMenu('tentang')}
-            className={`flex items-center gap-1.5 transition-colors duration-300 hover:text-bekasi-gold ${
-              activeMenu === 'tentang' ? 'font-bold text-bekasi-gold' : 'font-medium'
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg transition-colors duration-300 ${
+              activeMenu === 'tentang'
+                ? 'font-bold bg-sage-green text-off-white'
+                : 'font-medium text-off-white/90 hover:bg-sage-green/70 hover:text-off-white'
             }`}
           >
             Tentang Bekasi
@@ -128,10 +129,12 @@ export default function Navbar() {
             </motion.div>
           </button>
 
-          <button 
+          <button
             onClick={() => toggleMenu('pemerintahan')}
-            className={`flex items-center gap-1.5 transition-colors duration-300 hover:text-bekasi-gold ${
-              activeMenu === 'pemerintahan' ? 'font-bold text-bekasi-gold' : 'font-medium'
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg transition-colors duration-300 ${
+              activeMenu === 'pemerintahan'
+                ? 'font-bold bg-sage-green text-off-white'
+                : 'font-medium text-off-white/90 hover:bg-sage-green/70 hover:text-off-white'
             }`}
           >
             Pemerintahan
@@ -143,11 +146,11 @@ export default function Navbar() {
             </motion.div>
           </button>
 
-          <a 
-            href="https://lhkpn.kpk.go.id" 
-            target="_blank" 
-            rel="noreferrer" 
-            className="flex items-center gap-1.5 font-medium transition-colors duration-300 hover:text-bekasi-gold hover:font-bold"
+          <a
+            href="https://lhkpn.kpk.go.id"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-medium text-off-white/90 transition-colors duration-300 hover:bg-sage-green/70 hover:text-off-white"
           >
             LHKPN <ExternalLink size={16} />
           </a>
@@ -159,46 +162,48 @@ export default function Navbar() {
           aria-label="Toggle navigasi menu"
           aria-expanded={isMobileMenuOpen}
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="block md:hidden p-2 rounded-lg text-white hover:bg-black/10 focus:outline-none transition-colors"
+          className="block md:hidden p-2 rounded-lg text-off-white hover:bg-sage-green focus:outline-none transition-colors"
         >
           {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
 
-      {/* ================= BARIS KEDUA: SUB-MENU DESKTOP ================= */}
+      {/* ================= BARIS KEDUA: SUB-MENU DESKTOP (MINT GRAY) ================= */}
       <AnimatePresence>
         {activeMenu && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 48, opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            // Tambahkan transparansi juga pada sub-menu jika sedang di-scroll
-            className={`hidden md:block overflow-hidden shadow-inner transition-colors duration-300 ${
-              isScrolled ? 'bg-bekasi-gold/90 backdrop-blur-md' : 'bg-bekasi-gold'
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className={`hidden md:block overflow-hidden border-b border-sage-green/20 transition-colors duration-300 ${
+              isScrolled ? 'bg-mint-gray/95 backdrop-blur-md' : 'bg-mint-gray'
             }`}
           >
             <div className="max-w-[1728px] mx-auto px-[64px] h-full flex items-center justify-center gap-12">
               {activeSubMenuList.map((item) => {
-                const isActiveSub = location.pathname.toLowerCase() === item.path.toLowerCase();
+                const isActiveSub =
+                  location.pathname.toLowerCase() === item.path.toLowerCase();
 
                 return (
-                  <Link 
+                  <Link
                     key={item.path}
-                    to={item.path} 
+                    to={item.path}
                     className={`relative h-full flex items-center px-2 transition-colors duration-300 text-14 ${
-                      isActiveSub ? 'font-extrabold text-gov-navy' : 'font-semibold text-gov-navy/70 hover:text-gov-navy hover:font-extrabold'
+                      isActiveSub
+                        ? 'font-extrabold text-forest-green'
+                        : 'font-semibold text-charcoal/80 hover:text-sage-green hover:font-extrabold'
                     }`}
                   >
                     {item.title}
-                    
+
                     {isActiveSub && (
                       <motion.div
                         layoutId="activeSubmenuUnderline"
-                        className="absolute bottom-1 left-0 right-0 h-[3px] bg-gov-navy rounded-full"
+                        className="absolute bottom-1 left-0 right-0 h-[3px] bg-forest-green rounded-full"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                       />
                     )}
                   </Link>
@@ -212,43 +217,45 @@ export default function Navbar() {
       {/* ================= HAMBURGER DROPDOWN (KHUSUS MOBILE) ================= */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div 
+          <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            // Sidebar HP juga diberikan sedikit transparansi & blur jika menu dibuka saat sedang scroll
-            className={`block md:hidden border-t border-white/10 px-5 py-4 overflow-hidden transition-colors duration-300 ${
-              isScrolled ? 'bg-[#0A4D2C]/95 backdrop-blur-md' : 'bg-[#0A4D2C]'
+            className={`block md:hidden border-t border-sage-green/50 px-5 py-4 overflow-hidden transition-colors duration-300 ${
+              isScrolled ? 'bg-forest-green/95 backdrop-blur-md' : 'bg-forest-green'
             }`}
           >
             {/* Dropdown Tentang Bekasi */}
             <div className="mb-4">
-              <button 
+              <button
                 onClick={() => toggleMobileAccordion('tentang')}
                 className="flex items-center justify-between w-full text-left focus:outline-none py-2"
               >
-                <span className="text-14 text-bekasi-gold font-bold uppercase tracking-wider">
+                <span className="text-14 text-mint-gray font-bold uppercase tracking-wider">
                   Tentang Bekasi
                 </span>
-                <motion.div animate={{ rotate: mobileExpandedMenu === 'tentang' ? -180 : 0 }} transition={{ duration: 0.3 }}>
-                  <ChevronDown size={18} className="text-bekasi-gold" />
+                <motion.div
+                  animate={{ rotate: mobileExpandedMenu === 'tentang' ? -180 : 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <ChevronDown size={18} className="text-mint-gray" />
                 </motion.div>
               </button>
-              
+
               <AnimatePresence>
                 {mobileExpandedMenu === 'tentang' && (
-                  <motion.div 
+                  <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden space-y-1 pl-2 border-l-2 border-bekasi-gold/50 mt-1"
+                    className="overflow-hidden space-y-1 pl-2 border-l-2 border-sage-green mt-1"
                   >
                     {subMenuTentang.map((item) => (
-                      <Link 
+                      <Link
                         key={item.path}
-                        to={item.path} 
+                        to={item.path}
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="block py-1.5 text-14 text-white/80 hover:text-white hover:font-bold transition-all"
+                        className="block py-1.5 px-2 rounded-md text-14 text-off-white/85 hover:text-off-white hover:bg-sage-green/60 hover:font-bold transition-all"
                       >
                         • {item.title}
                       </Link>
@@ -260,32 +267,37 @@ export default function Navbar() {
 
             {/* Dropdown Pemerintahan */}
             <div className="mb-4">
-              <button 
+              <button
                 onClick={() => toggleMobileAccordion('pemerintahan')}
                 className="flex items-center justify-between w-full text-left focus:outline-none py-2"
               >
-                <span className="text-14 text-bekasi-gold font-bold uppercase tracking-wider">
+                <span className="text-14 text-mint-gray font-bold uppercase tracking-wider">
                   Pemerintahan
                 </span>
-                <motion.div animate={{ rotate: mobileExpandedMenu === 'pemerintahan' ? -180 : 0 }} transition={{ duration: 0.3 }}>
-                  <ChevronDown size={18} className="text-bekasi-gold" />
+                <motion.div
+                  animate={{
+                    rotate: mobileExpandedMenu === 'pemerintahan' ? -180 : 0,
+                  }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <ChevronDown size={18} className="text-mint-gray" />
                 </motion.div>
               </button>
-              
+
               <AnimatePresence>
                 {mobileExpandedMenu === 'pemerintahan' && (
-                  <motion.div 
+                  <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden space-y-1 pl-2 border-l-2 border-bekasi-gold/50 mt-1"
+                    className="overflow-hidden space-y-1 pl-2 border-l-2 border-sage-green mt-1"
                   >
                     {subMenuPemerintahan.map((item) => (
-                      <Link 
+                      <Link
                         key={item.path}
-                        to={item.path} 
+                        to={item.path}
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="block py-1.5 text-14 text-white/80 hover:text-white hover:font-bold transition-all"
+                        className="block py-1.5 px-2 rounded-md text-14 text-off-white/85 hover:text-off-white hover:bg-sage-green/60 hover:font-bold transition-all"
                       >
                         • {item.title}
                       </Link>
@@ -294,14 +306,14 @@ export default function Navbar() {
                 )}
               </AnimatePresence>
             </div>
-            
-            <div className="pt-2 border-t border-white/10 mt-2">
-              <a 
-                href="https://lhkpn.kpk.go.id" 
-                target="_blank" 
-                rel="noreferrer" 
+
+            <div className="pt-2 border-t border-sage-green/50 mt-2">
+              <a
+                href="https://lhkpn.kpk.go.id"
+                target="_blank"
+                rel="noreferrer"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center gap-2 py-2 text-white hover:text-bekasi-gold hover:font-bold transition-all"
+                className="flex items-center gap-2 py-2 px-2 rounded-md text-off-white hover:bg-sage-green/60 hover:font-bold transition-all"
               >
                 LHKPN <ExternalLink size={16} />
               </a>

@@ -1,14 +1,52 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Home, Network, Database, List, Settings, LogOut } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Users,
+  Home,
+  Network,
+  Database,
+  List,
+  LogOut,
+  ShieldCheck,
+} from 'lucide-react';
 
 export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Ambil role dari adminUser atau decode payload JWT
+  const getAdminInfo = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('adminUser') || 'null');
+      if (saved?.role) return saved;
+    } catch {}
+
+    try {
+      const token = localStorage.getItem('token');
+      if (token) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return { email: payload.email, role: payload.role || 'ADMIN' };
+      }
+    } catch {}
+
+    return { name: 'Admin', role: 'ADMIN' };
+  };
+
+  const adminInfo = getAdminInfo();
+  const isSuperAdmin = adminInfo.role === 'SUPER_ADMIN';
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/admin/login');
+    }
+  }, [navigate]);
+
   const handleLogout = () => {
-    // Hapus token dan kembalikan ke halaman login
+    localStorage.removeItem('token');
     localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUser');
     navigate('/admin/login');
   };
 
@@ -19,31 +57,43 @@ export default function AdminLayout() {
     { name: 'Struktur', icon: <Network size={20} />, path: '/admin/struktur' },
     { name: 'Daftar Perangkat', icon: <List size={20} />, path: '/admin/Daftar' },
     { name: 'Realisasi Anggaran', icon: <Database size={20} />, path: '/admin/realisasi' },
-    { name: 'Pengaturan', icon: <Settings size={20} />, path: '/admin/settings' },
+    ...(isSuperAdmin
+      ? [{ name: 'Kelola Admin', icon: <ShieldCheck size={20} />, path: '/admin/users' }]
+      : []),
   ];
 
   return (
-    <div className="flex h-screen bg-slate-100 font-sans">
-      
-      {/* SIDEBAR */}
-      <aside className="w-64 bg-[#0B5D34] text-white flex flex-col shadow-xl">
-        <div className="p-6 border-b border-white/20">
-          <h2 className="text-20 font-bold tracking-wide">Admin Panel</h2>
-          <p className="text-12 text-[#CBBAB8] mt-1">Kabupaten Bekasi</p>
+    <div className="flex h-screen bg-off-white text-charcoal font-sans">
+      {/* SIDEBAR (Forest Green) */}
+      <aside className="w-64 bg-forest-green text-off-white flex flex-col shadow-xl">
+        <div className="p-6 border-b border-sage-green/50">
+          <h2 className="text-20 font-bold tracking-wide text-off-white">
+            Admin Panel
+          </h2>
+          <p className="text-12 text-mint-gray mt-1">Kabupaten Bekasi</p>
+          <span
+            className={`inline-block mt-3 px-2.5 py-0.5 rounded text-11 font-bold uppercase tracking-wider ${
+              isSuperAdmin
+                ? 'bg-mint-gray text-forest-green'
+                : 'bg-sage-green text-off-white'
+            }`}
+          >
+            {isSuperAdmin ? 'Super Admin' : 'Admin'}
+          </span>
         </div>
 
-        <nav className="flex-1 py-6 flex flex-col gap-2 px-4">
+        <nav className="flex-1 py-6 flex flex-col gap-2 px-4 overflow-y-auto">
           {menuItems.map((item) => {
-            // Pengecekan aktif berdasarkan path
-            const isActive = location.pathname.toLowerCase() === item.path.toLowerCase();
+            const isActive =
+              location.pathname.toLowerCase() === item.path.toLowerCase();
             return (
               <Link
                 key={item.name}
                 to={item.path}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
-                  isActive 
-                    ? 'bg-white text-[#0B5D34] font-bold shadow-md' 
-                    : 'hover:bg-white/10 text-white/90'
+                  isActive
+                    ? 'bg-off-white text-forest-green font-bold shadow-md'
+                    : 'hover:bg-sage-green text-off-white/90 hover:text-off-white'
                 }`}
               >
                 {item.icon}
@@ -53,10 +103,10 @@ export default function AdminLayout() {
           })}
         </nav>
 
-        <div className="p-4 border-t border-white/20">
-          <button 
+        <div className="p-4 border-t border-sage-green/50">
+          <button
             onClick={handleLogout}
-            className="flex items-center gap-3 w-full px-4 py-3 text-red-300 hover:bg-red-500/20 hover:text-red-200 rounded-xl transition-colors"
+            className="flex items-center gap-3 w-full px-4 py-3 text-red-200 hover:bg-red-500/20 hover:text-white rounded-xl transition-colors"
           >
             <LogOut size={20} />
             <span className="font-semibold">Keluar</span>
@@ -66,19 +116,21 @@ export default function AdminLayout() {
 
       {/* KONTEN UTAMA (Kanan) */}
       <main className="flex-1 flex flex-col overflow-hidden">
-        {/* Header Atas */}
-        <header className="bg-white h-16 border-b border-slate-200 flex items-center px-8 shadow-sm">
-          <h1 className="text-18 font-bold text-slate-700 capitalize">
+        {/* Header Atas (Mint Gray sebagai section alternatif) */}
+        <header className="bg-mint-gray h-16 border-b border-sage-green/30 flex items-center justify-between px-8 shadow-sm">
+          <h1 className="text-18 font-bold text-forest-green capitalize">
             {location.pathname.split('/').pop() || 'Dashboard'}
           </h1>
+          <span className="text-13 font-medium text-charcoal">
+            {adminInfo.name || adminInfo.email}
+          </span>
         </header>
 
-        {/* Area Konten Dinamis */}
-        <div className="flex-1 overflow-auto p-8 bg-[#f8f9fa]">
-          <Outlet /> 
+        {/* Area Konten Dinamis (Off White sebagai background utama) */}
+        <div className="flex-1 overflow-auto p-8 bg-off-white text-charcoal">
+          <Outlet />
         </div>
       </main>
-
     </div>
   );
 }

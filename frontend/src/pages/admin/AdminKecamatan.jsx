@@ -24,7 +24,7 @@ export default function AdminKecamatan() {
       const data = await res.json();
       setKecamatanList(data);
     } catch (error) {
-      console.error("Gagal load data:", error);
+      console.error('Gagal load data:', error);
     }
   };
 
@@ -86,7 +86,7 @@ export default function AdminKecamatan() {
   // --- Submit Tambah / Edit ---
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!namaKecamatan.trim()) return alert("Nama Kecamatan wajib diisi!");
+    if (!namaKecamatan.trim()) return alert('Nama Kecamatan wajib diisi!');
 
     setIsLoading(true);
     try {
@@ -111,15 +111,15 @@ export default function AdminKecamatan() {
       });
 
       if (res.ok) {
-        alert(editId ? "Data berhasil diperbarui!" : "Data berhasil ditambahkan!");
+        alert(editId ? 'Data berhasil diperbarui!' : 'Data berhasil ditambahkan!');
         resetForm();
         fetchData();
       } else {
-        alert("Gagal menyimpan data.");
+        alert('Gagal menyimpan data.');
       }
     } catch (error) {
       console.error(error);
-      alert("Terjadi kesalahan sistem saat menyimpan.");
+      alert('Terjadi kesalahan sistem saat menyimpan.');
     } finally {
       setIsLoading(false);
     }
@@ -127,7 +127,7 @@ export default function AdminKecamatan() {
 
   // --- Hapus Data ---
   const handleDelete = async (id) => {
-    if (!window.confirm("Yakin ingin menghapus data ini?")) return;
+    if (!window.confirm('Yakin ingin menghapus data ini?')) return;
 
     try {
       const res = await fetch(`${API_URL}/${id}`, {
@@ -136,36 +136,36 @@ export default function AdminKecamatan() {
       });
 
       if (res.ok) {
-        alert("Data dihapus!");
+        alert('Data dihapus!');
         if (editId === id) resetForm();
         fetchData();
       }
     } catch (error) {
-      console.error("Gagal hapus data:", error);
+      console.error('Gagal hapus data:', error);
     }
   };
 
   return (
-    <div className="p-6 md:p-10 max-w-7xl mx-auto">
+    <div className="p-6 md:p-10 max-w-7xl mx-auto text-charcoal">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-800">Kelola Data Wilayah</h1>
-        <p className="text-slate-600 mt-1">
+        <h1 className="text-3xl font-bold text-forest-green">Kelola Data Wilayah</h1>
+        <p className="text-charcoal/75 mt-1">
           Tambah, ubah, dan hapus data Kecamatan beserta daftar Kelurahan dan Desa.
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* PANEL KIRI: FORM TAMBAH / EDIT DATA */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm h-fit">
+        <div className="bg-mint-gray p-6 rounded-xl border border-sage-green/25 shadow-sm h-fit">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-slate-800">
+            <h2 className="text-lg font-bold text-forest-green">
               {editId ? 'Edit Data Wilayah' : 'Tambah Data Wilayah'}
             </h2>
             {editId && (
               <button
                 type="button"
                 onClick={resetForm}
-                className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-2.5 py-1 rounded font-medium"
+                className="text-xs bg-off-white hover:bg-sage-green hover:text-off-white text-forest-green border border-sage-green/30 px-2.5 py-1 rounded font-medium transition-colors"
               >
                 Batal Edit
               </button>
@@ -175,7 +175,7 @@ export default function AdminKecamatan() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {/* Input Kecamatan */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-semibold text-charcoal mb-1">
                 Nama Kecamatan *
               </label>
               <input
@@ -183,14 +183,14 @@ export default function AdminKecamatan() {
                 value={namaKecamatan}
                 onChange={(e) => setNamaKecamatan(e.target.value)}
                 placeholder="Cth: Cikarang Pusat"
-                className="w-full p-2 border border-slate-300 rounded-md focus:outline-blue-500"
+                className="w-full p-2 bg-off-white text-charcoal border border-sage-green/30 rounded-md focus:outline-none focus:border-forest-green focus:ring-1 focus:ring-sage-green"
                 required
               />
             </div>
 
             {/* Input Dinamis Kelurahan */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-semibold text-charcoal mb-1">
                 Nama Kelurahan (Jika ada)
               </label>
               {namaKelurahan.map((kelurahan, index) => (
@@ -200,13 +200,13 @@ export default function AdminKecamatan() {
                     value={kelurahan}
                     onChange={(e) => handleKelurahanChange(index, e.target.value)}
                     placeholder={`Nama Kelurahan ${index + 1}`}
-                    className="w-full p-2 border border-slate-300 rounded-md focus:outline-blue-500"
+                    className="w-full p-2 bg-off-white text-charcoal border border-sage-green/30 rounded-md focus:outline-none focus:border-forest-green focus:ring-1 focus:ring-sage-green"
                   />
                   {namaKelurahan.length > 1 && (
                     <button
                       type="button"
                       onClick={() => removeKelurahanField(index)}
-                      className="px-3 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors shrink-0 text-sm"
+                      className="px-3 bg-red-50 text-red-600 rounded-md hover:bg-red-600 hover:text-off-white transition-colors shrink-0 text-sm"
                     >
                       Hapus
                     </button>
@@ -216,7 +216,7 @@ export default function AdminKecamatan() {
               <button
                 type="button"
                 onClick={addKelurahanField}
-                className="text-sm text-blue-600 font-medium hover:text-blue-800 mt-1 inline-flex items-center gap-1"
+                className="text-sm text-forest-green font-semibold hover:text-sage-green mt-1 inline-flex items-center gap-1"
               >
                 <span>+</span> Tambah Kelurahan Lainnya
               </button>
@@ -224,7 +224,7 @@ export default function AdminKecamatan() {
 
             {/* Input Dinamis Desa */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-semibold text-charcoal mb-1">
                 Nama Desa
               </label>
               {namaDesa.map((desa, index) => (
@@ -234,13 +234,13 @@ export default function AdminKecamatan() {
                     value={desa}
                     onChange={(e) => handleDesaChange(index, e.target.value)}
                     placeholder={`Nama Desa ${index + 1}`}
-                    className="w-full p-2 border border-slate-300 rounded-md focus:outline-blue-500"
+                    className="w-full p-2 bg-off-white text-charcoal border border-sage-green/30 rounded-md focus:outline-none focus:border-forest-green focus:ring-1 focus:ring-sage-green"
                   />
                   {namaDesa.length > 1 && (
                     <button
                       type="button"
                       onClick={() => removeDesaField(index)}
-                      className="px-3 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors shrink-0 text-sm"
+                      className="px-3 bg-red-50 text-red-600 rounded-md hover:bg-red-600 hover:text-off-white transition-colors shrink-0 text-sm"
                     >
                       Hapus
                     </button>
@@ -250,7 +250,7 @@ export default function AdminKecamatan() {
               <button
                 type="button"
                 onClick={addDesaField}
-                className="text-sm text-blue-600 font-medium hover:text-blue-800 mt-1 inline-flex items-center gap-1"
+                className="text-sm text-forest-green font-semibold hover:text-sage-green mt-1 inline-flex items-center gap-1"
               >
                 <span>+</span> Tambah Desa Lainnya
               </button>
@@ -258,17 +258,17 @@ export default function AdminKecamatan() {
 
             {/* Input File Foto */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-semibold text-charcoal mb-1">
                 {editId ? 'Ganti Foto Wilayah (Opsional)' : 'Upload Foto Kantor / Wilayah'}
               </label>
               {editId && existingFoto && !foto && (
-                <div className="mb-2 flex items-center gap-3 p-2 bg-slate-50 rounded-md border border-slate-200">
+                <div className="mb-2 flex items-center gap-3 p-2 bg-off-white rounded-md border border-sage-green/25">
                   <img
                     src={existingFoto}
                     alt="Foto saat ini"
                     className="w-12 h-12 object-cover rounded"
                   />
-                  <span className="text-xs text-slate-500">
+                  <span className="text-xs text-charcoal/75">
                     Foto saat ini tersimpan. Pilih file baru jika ingin mengganti.
                   </span>
                 </div>
@@ -278,17 +278,17 @@ export default function AdminKecamatan() {
                 type="file"
                 accept="image/*"
                 onChange={(e) => setFoto(e.target.files[0])}
-                className="w-full p-2 border border-slate-300 rounded-md focus:outline-blue-500 text-sm file:mr-4 file:py-1.5 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                className="w-full p-2 bg-off-white text-charcoal border border-sage-green/30 rounded-md focus:outline-none focus:border-forest-green text-sm file:mr-4 file:py-1.5 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-forest-green file:text-off-white hover:file:bg-sage-green cursor-pointer"
               />
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className={`mt-2 text-white font-bold py-2.5 rounded-md transition-colors disabled:opacity-50 ${
+              className={`mt-2 text-off-white font-bold py-2.5 rounded-md transition-colors disabled:opacity-50 ${
                 editId
-                  ? 'bg-amber-600 hover:bg-amber-700'
-                  : 'bg-blue-600 hover:bg-blue-700'
+                  ? 'bg-sage-green hover:bg-forest-green'
+                  : 'bg-forest-green hover:bg-sage-green'
               }`}
             >
               {isLoading
@@ -301,11 +301,11 @@ export default function AdminKecamatan() {
         </div>
 
         {/* PANEL KANAN: TABEL DAFTAR DATA */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden h-fit">
-          <div className="overflow-x-auto p-1">
+        <div className="lg:col-span-2 bg-off-white rounded-xl border border-sage-green/25 shadow-sm overflow-hidden h-fit">
+          <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50 text-slate-700 text-sm border-b border-slate-200">
+                <tr className="bg-forest-green text-off-white text-sm border-b border-sage-green/30">
                   <th className="p-4 font-semibold">Kecamatan</th>
                   <th className="p-4 font-semibold">Daftar Kelurahan</th>
                   <th className="p-4 font-semibold">Daftar Desa</th>
@@ -316,7 +316,7 @@ export default function AdminKecamatan() {
               <tbody className="text-sm">
                 {kecamatanList.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className="p-8 text-center text-slate-500">
+                    <td colSpan="5" className="p-8 text-center text-charcoal/70">
                       Belum ada data wilayah.
                     </td>
                   </tr>
@@ -324,44 +324,44 @@ export default function AdminKecamatan() {
                   kecamatanList.map((item) => (
                     <tr
                       key={item.id}
-                      className={`border-b border-slate-100 hover:bg-slate-50 ${
-                        editId === item.id ? 'bg-amber-50/60' : ''
+                      className={`border-b border-sage-green/20 hover:bg-mint-gray/50 transition-colors ${
+                        editId === item.id ? 'bg-mint-gray' : ''
                       }`}
                     >
-                      <td className="p-4 font-bold text-slate-800">
+                      <td className="p-4 font-bold text-forest-green">
                         {item.namaKecamatan || item.title}
                       </td>
-                      <td className="p-4 text-slate-600">
+                      <td className="p-4 text-charcoal">
                         {Array.isArray(item.namaKelurahan) &&
                         item.namaKelurahan.length > 0
                           ? item.namaKelurahan.join(', ')
                           : '-'}
                       </td>
-                      <td className="p-4 text-slate-600">
+                      <td className="p-4 text-charcoal">
                         {Array.isArray(item.namaDesa) && item.namaDesa.length > 0
                           ? item.namaDesa.join(', ')
                           : '-'}
                       </td>
                       <td className="p-4 text-center">
                         {item.foto || item.gambar ? (
-                          <span className="text-green-600 font-medium text-xs bg-green-100 px-2 py-1 rounded-full">
+                          <span className="text-forest-green font-semibold text-xs bg-mint-gray border border-sage-green/30 px-2.5 py-1 rounded-full">
                             Ada
                           </span>
                         ) : (
-                          <span className="text-slate-400 text-xs">Kosong</span>
+                          <span className="text-charcoal/50 text-xs">Kosong</span>
                         )}
                       </td>
                       <td className="p-4 text-center">
                         <div className="flex items-center justify-center gap-2">
                           <button
                             onClick={() => handleEdit(item)}
-                            className="bg-amber-100 text-amber-700 hover:bg-amber-500 hover:text-white px-3 py-1.5 rounded-md font-medium transition-colors text-xs"
+                            className="bg-mint-gray text-forest-green hover:bg-sage-green hover:text-off-white px-3 py-1.5 rounded-md font-medium transition-colors text-xs"
                           >
                             Edit
                           </button>
                           <button
                             onClick={() => handleDelete(item.id)}
-                            className="bg-red-100 text-red-600 hover:bg-red-600 hover:text-white px-3 py-1.5 rounded-md font-medium transition-colors text-xs"
+                            className="bg-red-50 text-red-600 hover:bg-red-600 hover:text-off-white px-3 py-1.5 rounded-md font-medium transition-colors text-xs"
                           >
                             Hapus
                           </button>
