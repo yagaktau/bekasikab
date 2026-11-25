@@ -55,34 +55,34 @@ export default function RealisasiAnggaran() {
   return (
     <>
       <div className="mt-12 md:mt-16 mb-8">
-        <h2 className="text-32 md:text-48 font-bold text-forest-green border-b-2 border-sage-green pb-2 inline-block">
+        <h2 className="text-24 md:text-34 font-bold text-forest-green border-b-2 border-sage-green pb-2 inline-block">
           Realisasi Belanja Pemerintah
         </h2>
       </div>
 
       <div className="bg-mint-gray rounded-2xl p-6 md:p-8 shadow-sm h-fit transition-all duration-300 border border-sage-green/20">
-        <p className="text-16 md:text-20 text-charcoal leading-relaxed mb-6 max-w-4xl">
+        <p className="text-14 md:text-16 text-charcoal leading-relaxed mb-6 max-w-4xl">
           Realisasi belanja Pemerintah Kabupaten Bekasi tiap tahun selalu meningkat sesuai dengan kebutuhan dan inflasi.
         </p>
 
         {isLoading ? (
-          <div className="text-forest-green font-semibold py-10">
+          <div className="text-forest-green font-semibold text-14 md:text-16 py-10">
             Memuat data Realisasi Anggaran...
           </div>
         ) : dataAnggaran.length === 0 ? (
-          <div className="bg-off-white border border-sage-green/20 rounded-xl p-8 text-center text-charcoal mb-8">
+          <div className="bg-off-white border border-sage-green/20 rounded-xl p-8 text-center text-14 md:text-16 text-charcoal mb-8">
             Belum ada data Realisasi Anggaran yang ditambahkan.
           </div>
         ) : (
           <>
-            <span className="text-16 font-semibold text-forest-green block mb-2">
+            <span className="text-14 md:text-16 font-semibold text-forest-green block mb-2">
               Rentang tahun:
             </span>
             <div className="flex flex-wrap items-center gap-3 mb-8 bg-off-white border border-sage-green/20 p-3 rounded-lg w-fit">
               <select
                 value={startYear}
                 onChange={(e) => setStartYear(Number(e.target.value))}
-                className="bg-off-white border border-sage-green rounded-md px-3 py-1.5 text-charcoal outline-none focus:border-forest-green"
+                className="bg-off-white border border-sage-green rounded-md px-3 py-1.5 text-14 md:text-16 text-charcoal outline-none focus:border-forest-green"
               >
                 {yearOptions.map((year) => (
                   <option
@@ -94,11 +94,11 @@ export default function RealisasiAnggaran() {
                   </option>
                 ))}
               </select>
-              <span className="text-forest-green font-bold">-</span>
+              <span className="text-forest-green font-bold text-14 md:text-16">-</span>
               <select
                 value={endYear}
                 onChange={(e) => setEndYear(Number(e.target.value))}
-                className="bg-off-white border border-sage-green rounded-md px-3 py-1.5 text-charcoal outline-none focus:border-forest-green"
+                className="bg-off-white border border-sage-green rounded-md px-3 py-1.5 text-14 md:text-16 text-charcoal outline-none focus:border-forest-green"
               >
                 {yearOptions.map((year) => (
                   <option
@@ -114,7 +114,7 @@ export default function RealisasiAnggaran() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
               <div className="bg-off-white border border-sage-green/20 rounded-xl p-5 md:p-6 h-fit transition-all duration-300">
-                <h3 className="text-16 md:text-20 font-bold text-forest-green mb-4">
+                <h3 className="text-18 md:text-20 font-bold text-forest-green mb-4">
                   Detail Anggaran
                 </h3>
                 <div className="flex flex-col gap-3">
@@ -124,16 +124,16 @@ export default function RealisasiAnggaran() {
                         key={item.year}
                         className="flex justify-between items-center bg-mint-gray border border-sage-green/15 px-4 py-3 rounded-md"
                       >
-                        <span className="text-16 font-bold text-forest-green">
+                        <span className="text-14 md:text-16 font-bold text-forest-green">
                           {item.year}:
                         </span>
-                        <span className="text-16 font-medium text-charcoal">
+                        <span className="text-14 md:text-16 font-medium text-charcoal">
                           {formatAngka(item.amount)}
                         </span>
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-4 text-charcoal/70 italic">
+                    <div className="text-center py-4 text-14 text-charcoal/70 italic">
                       Data tidak ditemukan.
                     </div>
                   )}
@@ -141,7 +141,7 @@ export default function RealisasiAnggaran() {
               </div>
 
               <div className="bg-off-white border border-sage-green/20 rounded-xl p-5 md:p-6 h-fit">
-                <h3 className="text-16 md:text-20 font-bold text-forest-green mb-4">
+                <h3 className="text-18 md:text-20 font-bold text-forest-green mb-4">
                   Visualisasi Perkembangan Anggaran
                 </h3>
                 <div className="bg-off-white rounded-lg p-4 h-[300px] w-full flex items-center justify-center border border-sage-green/20">
@@ -204,7 +204,7 @@ export default function RealisasiAnggaran() {
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
-                <p className="text-14 text-charcoal mt-4 font-medium">
+                <p className="text-13 md:text-14 text-charcoal mt-4 font-medium">
                   Anggaran dalam jumlah "Miliar".
                 </p>
               </div>

@@ -15,13 +15,13 @@ export default function Visi() {
   return (
     <>
       <div className="mt-12 md:mt-16 mb-8">
-        <h2 className="text-32 md:text-48 font-bold text-forest-green border-b-2 border-sage-green pb-2 inline-block">
+        <h2 className="text-24 md:text-34 font-bold text-forest-green border-b-2 border-sage-green pb-2 inline-block">
           Visi Pemerintahan Kabupaten Bekasi
         </h2>
       </div>
 
       <div className="bg-mint-gray border border-sage-green/25 p-6 md:p-10 rounded-xl mb-8 shadow-sm">
-        <p className="text-base md:text-lg leading-relaxed text-center font-medium text-charcoal">
+        <p className="text-14 md:text-16 leading-relaxed text-center font-medium text-charcoal">
           {visiData.ringkasan}
         </p>
       </div>
@@ -52,7 +52,7 @@ export default function Visi() {
                     : 'bg-forest-green text-off-white group-hover:bg-sage-green'
                 }`}
               >
-                <h3 className="text-lg md:text-xl font-bold tracking-wide flex items-center justify-center gap-2">
+                <h3 className="text-18 md:text-20 font-bold tracking-wide flex items-center justify-center gap-2">
                   {item.title}
                   <svg
                     className={`w-5 h-5 transition-transform duration-300 ${
@@ -76,7 +76,7 @@ export default function Visi() {
                 }`}
               >
                 <div className="p-5">
-                  <p className="text-sm md:text-base text-charcoal leading-relaxed text-center font-normal">
+                  <p className="text-14 md:text-16 text-charcoal leading-relaxed text-center font-normal">
                     {item.info}
                   </p>
                 </div>

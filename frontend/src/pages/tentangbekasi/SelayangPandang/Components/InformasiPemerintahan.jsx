@@ -27,7 +27,7 @@ function CollapsePanel({ isOpen, children }) {
     >
       <div
         ref={contentRef}
-        className="border-t border-sage-green/20 p-4 md:p-6 text-14 md:text-20 text-justify text-charcoal whitespace-pre-line"
+        className="border-t border-sage-green/20 p-4 md:p-6 text-14 md:text-16 leading-relaxed text-justify text-charcoal whitespace-pre-line"
       >
         {children}
       </div>
@@ -41,7 +41,7 @@ function ExpandableCard({ title, buttonLabel, isOpen, onToggle, children }) {
       {/* KIRI */}
       <div className="md:col-span-10 bg-mint-gray border border-sage-green/20 md:border-r-0 md:box-rounded-left md:rounded-l-[20px] flex flex-col order-1 overflow-hidden">
         <div className="min-h-[80px] md:min-h-[110px] p-4 md:p-6 flex items-center">
-          <span className="text-16 md:text-32 font-bold text-forest-green leading-snug w-[85%] md:w-full">
+          <span className="text-18 md:text-20 font-bold text-forest-green leading-snug w-[85%] md:w-full">
             {title}
           </span>
         </div>
@@ -59,7 +59,7 @@ function ExpandableCard({ title, buttonLabel, isOpen, onToggle, children }) {
         type="button"
         onClick={onToggle}
         aria-expanded={isOpen}
-        className="order-3 md:col-span-2 bg-forest-green text-off-white hover:bg-sage-green transition-colors duration-300 flex items-center justify-center py-2.5 px-4 md:p-3 text-center text-14 md:text-20 font-bold leading-tight md:box-rounded-right md:rounded-r-[20px] w-full border-t border-sage-green/30 md:border-t-0"
+        className="order-3 md:col-span-2 bg-forest-green text-off-white hover:bg-sage-green transition-colors duration-300 flex items-center justify-center py-2.5 px-4 md:p-3 text-center text-14 md:text-16 font-bold leading-tight md:box-rounded-right md:rounded-r-[20px] w-full border-t border-sage-green/30 md:border-t-0"
       >
         {isOpen ? 'Tutup' : buttonLabel}
       </button>
@@ -96,7 +96,7 @@ export default function InformasiPemerintahan() {
   return (
     <>
       <div className="mt-12 md:mt-16 mb-8">
-        <h2 className="text-32 md:text-48 font-bold text-forest-green border-b-2 border-sage-green pb-2 inline-block">
+        <h2 className="text-24 md:text-34 font-bold text-forest-green border-b-2 border-sage-green pb-2 inline-block">
           Informasi Pemerintahan
         </h2>
       </div>

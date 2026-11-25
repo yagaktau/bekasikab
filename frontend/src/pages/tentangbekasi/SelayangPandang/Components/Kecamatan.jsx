@@ -88,19 +88,19 @@ export default function Kecamatan() {
 
   return (
     <div className="w-full bg-off-white text-charcoal pb-16 md:pb-24">
-      {/* Header Halaman */}
+      {/* ================= HERO BANNER ================= */}
       <div
-        className="w-full relative bg-forest-green bg-cover bg-center py-16 md:py-24 flex items-center overflow-hidden"
+        className="w-full relative bg-charcoal bg-cover bg-center py-16 md:py-24 flex items-center overflow-hidden"
         style={{ backgroundImage: `url(${heroBg})` }}
       >
-        <div className="absolute inset-0 bg-forest-green/75"></div>
+        <div className="absolute inset-0 bg-charcoal/70"></div>
         <div className="relative z-10 w-full max-w-[1728px] mx-auto px-5 md:px-[64px]">
           <Link
             to="/tentangbekasi/SelayangPandang"
-            className="inline-flex items-center gap-2 text-off-white hover:text-mint-gray transition-colors mb-6 font-medium bg-forest-green/80 px-4 py-2 rounded-lg border border-sage-green/50 hover:bg-sage-green backdrop-blur-sm w-fit"
+            className="inline-flex items-center gap-2 text-13 md:text-14 text-off-white hover:text-off-white transition-colors mb-4 font-medium bg-charcoal/60 px-3.5 py-1.5 rounded-lg border border-off-white/25 hover:bg-sage-green hover:border-sage-green backdrop-blur-sm w-fit"
           >
             <svg
-              className="w-5 h-5"
+              className="w-4 h-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -114,21 +114,22 @@ export default function Kecamatan() {
             </svg>
             Kembali ke Selayang Pandang
           </Link>
-          <h1 className="text-32 md:text-56 font-extrabold text-off-white tracking-tight">
+          <h1 className="text-28 md:text-48 font-extrabold text-off-white tracking-tight drop-shadow-md">
             Daftar Kecamatan di Kabupaten Bekasi
           </h1>
-          <p className="text-16 md:text-20 text-mint-gray mt-4 max-w-3xl leading-relaxed">
+          <p className="text-14 md:text-16 text-mint-gray mt-3 max-w-3xl leading-relaxed">
             Kabupaten Bekasi terbagi ke dalam 23 Kecamatan yang membawahi total 8 Kelurahan dan 179 Desa. Berikut adalah daftar lengkapnya.
           </p>
         </div>
       </div>
 
+      {/* ================= KONTEN UTAMA ================= */}
       <div
         className={`w-full max-w-[1728px] mx-auto px-5 md:px-[64px] mt-8 md:mt-12 transition-all duration-700 delay-300 ease-out ${
           isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
         }`}
       >
-        <h2 className="text-2xl font-bold text-forest-green mb-4 hidden md:block">
+        <h2 className="text-24 md:text-34 font-bold text-forest-green mb-4 hidden md:block">
           Daftar Kecamatan
         </h2>
 
@@ -157,7 +158,7 @@ export default function Kecamatan() {
                   setSearchQuery(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="bg-transparent border-none outline-none w-full text-charcoal placeholder-charcoal/50 text-sm py-1"
+                className="bg-transparent border-none outline-none w-full text-charcoal placeholder-charcoal/50 text-14 py-1"
                 disabled={isLoading}
               />
             </div>
@@ -167,7 +168,7 @@ export default function Kecamatan() {
                 <select
                   value={sortOrder}
                   onChange={(e) => setSortOrder(e.target.value)}
-                  className="bg-transparent outline-none text-sm cursor-pointer text-charcoal font-medium w-full"
+                  className="bg-transparent outline-none text-14 cursor-pointer text-charcoal font-medium w-full"
                 >
                   <option value="asc">A - Z</option>
                   <option value="desc">Z - A</option>
@@ -206,15 +207,15 @@ export default function Kecamatan() {
 
           {/* List Kartu */}
           {isLoading ? (
-            <div className="py-20 text-center text-lg font-semibold text-forest-green">
+            <div className="py-20 text-center text-16 md:text-18 font-semibold text-forest-green">
               Memuat daftar kecamatan...
             </div>
           ) : paginatedData.length === 0 ? (
             <div className="py-20 text-center bg-off-white rounded-xl border border-sage-green/20">
-              <h3 className="text-xl font-bold text-forest-green mb-1">
+              <h3 className="text-18 md:text-20 font-bold text-forest-green mb-1">
                 Pencarian tidak ditemukan
               </h3>
-              <p className="text-charcoal text-sm">
+              <p className="text-charcoal text-14">
                 Tidak ada data yang cocok dengan kata kunci tersebut.
               </p>
             </div>
@@ -260,11 +261,11 @@ export default function Kecamatan() {
                           alt={item.title || item.namaKecamatan}
                           className="w-14 h-14 rounded-lg object-cover shrink-0 border border-sage-green/20 shadow-sm"
                         />
-                        <h3 className="text-sm font-bold text-forest-green uppercase tracking-wide leading-tight">
+                        <h3 className="text-16 font-bold text-forest-green uppercase tracking-wide leading-tight">
                           {item.namaKecamatan || item.title}
                         </h3>
                       </div>
-                      <div className="p-3 bg-mint-gray/40 flex-1 space-y-2 text-[13px] text-charcoal">
+                      <div className="p-3 bg-mint-gray/40 flex-1 space-y-2 text-14 text-charcoal">
                         {Array.isArray(item.namaKelurahan) &&
                           item.namaKelurahan.length > 0 && (
                             <div>
@@ -288,7 +289,7 @@ export default function Kecamatan() {
                         )}
                         {(!item.namaKelurahan || item.namaKelurahan.length === 0) &&
                           (!item.namaDesa || item.namaDesa.length === 0) && (
-                            <p className="text-charcoal/60 italic text-xs">
+                            <p className="text-charcoal/60 italic text-13">
                               Belum ada data kelurahan/desa.
                             </p>
                           )}
@@ -318,7 +319,7 @@ export default function Kecamatan() {
 
                           <div className="relative z-30 flex flex-col w-full h-full">
                             <div className="h-[180px] flex flex-col justify-end px-4 pb-3 shrink-0 pointer-events-none">
-                              <h3 className="text-[16px] md:text-[18px] font-extrabold text-off-white uppercase tracking-wide drop-shadow-md">
+                              <h3 className="text-18 md:text-20 font-extrabold text-off-white uppercase tracking-wide drop-shadow-md">
                                 {item.namaKecamatan || item.title}
                               </h3>
                             </div>
@@ -332,7 +333,7 @@ export default function Kecamatan() {
                             >
                               <div className="space-y-3 mt-auto">
                                 {item.isi && (
-                                  <p className="text-[14px] md:text-[15px] text-off-white/90 whitespace-pre-line leading-relaxed drop-shadow-md">
+                                  <p className="text-14 text-off-white/90 whitespace-pre-line leading-relaxed drop-shadow-md">
                                     {item.isi}
                                   </p>
                                 )}
@@ -340,10 +341,10 @@ export default function Kecamatan() {
                                 {Array.isArray(item.namaKelurahan) &&
                                   item.namaKelurahan.length > 0 && (
                                     <div>
-                                      <span className="font-bold text-mint-gray text-[14px] md:text-[15px] drop-shadow-md">
+                                      <span className="font-bold text-mint-gray text-14 drop-shadow-md">
                                         Kelurahan ({item.namaKelurahan.length}):{' '}
                                       </span>
-                                      <span className="text-off-white/90 text-[14px] md:text-[15px] leading-relaxed drop-shadow-md">
+                                      <span className="text-off-white/90 text-14 leading-relaxed drop-shadow-md">
                                         {item.namaKelurahan.join(', ')}
                                       </span>
                                     </div>
@@ -352,10 +353,10 @@ export default function Kecamatan() {
                                 {Array.isArray(item.namaDesa) &&
                                   item.namaDesa.length > 0 && (
                                     <div>
-                                      <span className="font-bold text-mint-gray text-[14px] md:text-[15px] drop-shadow-md">
+                                      <span className="font-bold text-mint-gray text-14 drop-shadow-md">
                                         Desa ({item.namaDesa.length}):{' '}
                                       </span>
-                                      <span className="text-off-white/90 text-[14px] md:text-[15px] leading-relaxed drop-shadow-md">
+                                      <span className="text-off-white/90 text-14 leading-relaxed drop-shadow-md">
                                         {item.namaDesa.join(', ')}
                                       </span>
                                     </div>
@@ -365,7 +366,7 @@ export default function Kecamatan() {
                                   item.namaKelurahan.length === 0) &&
                                   (!item.namaDesa || item.namaDesa.length === 0) &&
                                   !item.isi && (
-                                    <p className="text-mint-gray/70 italic text-[14px] drop-shadow-md">
+                                    <p className="text-mint-gray/70 italic text-14 drop-shadow-md">
                                       Belum ada data detail wilayah.
                                     </p>
                                   )}
@@ -387,7 +388,7 @@ export default function Kecamatan() {
                           </div>
 
                           <div className="p-5 flex flex-col flex-1">
-                            <h3 className="text-lg font-extrabold text-off-white uppercase transition-colors duration-300">
+                            <h3 className="text-18 md:text-20 font-extrabold text-off-white uppercase transition-colors duration-300">
                               {item.namaKecamatan || item.title}
                             </h3>
                             <hr className="border-off-white/15 my-3" />
@@ -395,10 +396,10 @@ export default function Kecamatan() {
                               {Array.isArray(item.namaKelurahan) &&
                                 item.namaKelurahan.length > 0 && (
                                   <div>
-                                    <p className="font-semibold text-mint-gray uppercase tracking-wider text-[11px] mb-1">
+                                    <p className="font-semibold text-mint-gray uppercase tracking-wider text-13 mb-1">
                                       Kelurahan ({item.namaKelurahan.length})
                                     </p>
-                                    <p className="leading-relaxed text-off-white/90 text-sm">
+                                    <p className="leading-relaxed text-off-white/90 text-14">
                                       {item.namaKelurahan.join(', ')}
                                     </p>
                                   </div>
@@ -406,10 +407,10 @@ export default function Kecamatan() {
                               {Array.isArray(item.namaDesa) &&
                                 item.namaDesa.length > 0 && (
                                   <div>
-                                    <p className="font-semibold text-mint-gray uppercase tracking-wider text-[11px] mb-1">
+                                    <p className="font-semibold text-mint-gray uppercase tracking-wider text-13 mb-1">
                                       Desa ({item.namaDesa.length})
                                     </p>
-                                    <p className="leading-relaxed text-off-white/90 text-sm">
+                                    <p className="leading-relaxed text-off-white/90 text-14">
                                       {item.namaDesa.join(', ')}
                                     </p>
                                   </div>
@@ -417,7 +418,7 @@ export default function Kecamatan() {
                               {(!item.namaKelurahan ||
                                 item.namaKelurahan.length === 0) &&
                                 (!item.namaDesa || item.namaDesa.length === 0) && (
-                                  <p className="text-mint-gray/70 italic text-sm">
+                                  <p className="text-mint-gray/70 italic text-14">
                                     Belum ada data kelurahan/desa.
                                   </p>
                                 )}
@@ -434,7 +435,7 @@ export default function Kecamatan() {
 
           {/* Bottom Bar: Paginasi */}
           {!isLoading && semuaKecamatan.length > 0 && (
-            <div className="mt-8 pt-6 md:pt-4 border-t border-sage-green/30 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-charcoal font-medium">
+            <div className="mt-8 pt-6 md:pt-4 border-t border-sage-green/30 flex flex-col md:flex-row justify-between items-center gap-4 text-14 text-charcoal font-medium">
               <div className="hidden md:flex items-center gap-1">
                 Tampilkan
                 <div className="bg-off-white rounded px-1 py-0.5 border border-sage-green/30 mx-1">

@@ -21,22 +21,22 @@ export default function WilayahAdministrasi() {
   return (
     <>
       <div className="mt-8 md:mt-12 flex items-center gap-2">
-        <h2 className="text-32 md:text-48 font-bold text-forest-green border-b-2 border-sage-green pb-2 inline-block">
+        <h2 className="text-24 md:text-34 font-bold text-forest-green border-b-2 border-sage-green pb-2 inline-block">
           Wilayah Administrasi Kabupaten Bekasi
         </h2>
       </div>
 
-      <p className="text-20 md:text-24 text-charcoal mb-6">
+      <p className="text-14 md:text-16 text-charcoal leading-relaxed mt-2 mb-6">
         Wilayah Kabupaten Bekasi terbagi ke dalam 23 kecamatan yang terdiri dari 8 kelurahan dan 179 desa.
       </p>
 
       <div className="flex justify-between items-end mb-4">
-        <p className="text-20 md:text-24 text-forest-green font-bold">
+        <p className="text-18 md:text-20 text-forest-green font-bold">
           Daftar Kecamatan:
         </p>
         <Link
           to="/kecamatan"
-          className="hidden md:flex items-center gap-2 text-16 font-bold text-forest-green hover:text-sage-green transition-colors group"
+          className="hidden md:flex items-center gap-2 text-14 md:text-16 font-bold text-forest-green hover:text-sage-green transition-colors group"
         >
           Lihat Semua Kecamatan{' '}
           <span className="group-hover:translate-x-1 transition-transform">❯❯❯</span>
@@ -44,11 +44,11 @@ export default function WilayahAdministrasi() {
       </div>
 
       {isLoading ? (
-        <div className="text-forest-green font-semibold py-10">
+        <div className="text-forest-green font-semibold text-14 md:text-16 py-10">
           Memuat data kecamatan...
         </div>
       ) : daftarKecamatan.length === 0 ? (
-        <div className="bg-mint-gray border border-sage-green/20 rounded-xl p-8 text-center text-charcoal">
+        <div className="bg-mint-gray border border-sage-green/20 rounded-xl p-8 text-center text-14 md:text-16 text-charcoal">
           Belum ada data kecamatan yang ditambahkan dari Dashboard Admin.
         </div>
       ) : (
@@ -91,7 +91,7 @@ export default function WilayahAdministrasi() {
                 {/* 7. KONTEN TEKS UTAMA */}
                 <div className="relative z-30 flex flex-col w-full h-full">
                   <div className="h-[180px] flex flex-col justify-end px-4 pb-3 shrink-0 pointer-events-none">
-                    <h3 className="text-16 md:text-18 font-extrabold text-off-white uppercase tracking-wide drop-shadow-md">
+                    <h3 className="text-18 md:text-20 font-extrabold text-off-white uppercase tracking-wide drop-shadow-md">
                       {item.title || item.namaKecamatan}
                     </h3>
                   </div>
@@ -105,7 +105,7 @@ export default function WilayahAdministrasi() {
                   >
                     <div className="space-y-3 mt-auto">
                       {item.isi && (
-                        <p className="text-[14px] md:text-[15px] text-off-white/90 whitespace-pre-line leading-relaxed drop-shadow-md">
+                        <p className="text-14 text-off-white/90 whitespace-pre-line leading-relaxed drop-shadow-md">
                           {item.isi}
                         </p>
                       )}
@@ -113,10 +113,10 @@ export default function WilayahAdministrasi() {
                       {Array.isArray(item.namaKelurahan) &&
                         item.namaKelurahan.length > 0 && (
                           <div>
-                            <span className="font-bold text-mint-gray text-[14px] md:text-[15px] drop-shadow-md">
+                            <span className="font-bold text-mint-gray text-14 drop-shadow-md">
                               Kelurahan ({item.namaKelurahan.length}):{' '}
                             </span>
-                            <span className="text-off-white/90 text-[14px] md:text-[15px] leading-relaxed drop-shadow-md">
+                            <span className="text-off-white/90 text-14 leading-relaxed drop-shadow-md">
                               {item.namaKelurahan.join(', ')}
                             </span>
                           </div>
@@ -124,10 +124,10 @@ export default function WilayahAdministrasi() {
 
                       {Array.isArray(item.namaDesa) && item.namaDesa.length > 0 && (
                         <div>
-                          <span className="font-bold text-mint-gray text-[14px] md:text-[15px] drop-shadow-md">
+                          <span className="font-bold text-mint-gray text-14 drop-shadow-md">
                             Desa ({item.namaDesa.length}):{' '}
                           </span>
-                          <span className="text-off-white/90 text-[14px] md:text-[15px] leading-relaxed drop-shadow-md">
+                          <span className="text-off-white/90 text-14 leading-relaxed drop-shadow-md">
                             {item.namaDesa.join(', ')}
                           </span>
                         </div>
@@ -136,7 +136,7 @@ export default function WilayahAdministrasi() {
                       {(!item.namaKelurahan || item.namaKelurahan.length === 0) &&
                         (!item.namaDesa || item.namaDesa.length === 0) &&
                         !item.isi && (
-                          <p className="text-mint-gray/70 italic text-sm drop-shadow-md">
+                          <p className="text-mint-gray/70 italic text-14 drop-shadow-md">
                             Belum ada data detail wilayah.
                           </p>
                         )}
@@ -153,7 +153,7 @@ export default function WilayahAdministrasi() {
       <div className="mb-8 md:hidden">
         <Link
           to="/kecamatan"
-          className="w-full flex items-center justify-center gap-2 bg-forest-green text-off-white py-3 px-5 rounded-xl text-15 font-bold hover:bg-sage-green transition-colors shadow-md group"
+          className="w-full flex items-center justify-center gap-2 bg-forest-green text-off-white py-3 px-5 rounded-xl text-14 md:text-16 font-bold hover:bg-sage-green transition-colors shadow-md group"
         >
           Lihat Semua Kecamatan{' '}
           <span className="group-hover:translate-x-1 transition-transform">❯❯❯</span>

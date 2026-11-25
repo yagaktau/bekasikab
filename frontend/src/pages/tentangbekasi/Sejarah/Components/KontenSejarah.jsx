@@ -40,7 +40,7 @@ export default function SejarahContent() {
   return (
     <>
       <div className="mt-12 md:mt-16 mb-8">
-        <h2 className="text-32 md:text-48 font-bold text-forest-green border-b-2 border-sage-green pb-2 inline-block">
+        <h2 className="text-24 md:text-34 font-bold text-forest-green border-b-2 border-sage-green pb-2 inline-block">
           Sejarah Kabupaten Bekasi
         </h2>
       </div>
@@ -50,7 +50,7 @@ export default function SejarahContent() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <div
             ref={addToRefs}
-            className="opacity-0 translate-y-24 transition-all duration-700 ease-out text-charcoal text-justify text-sm md:text-base leading-relaxed order-2 md:order-1"
+            className="opacity-0 translate-y-24 transition-all duration-700 ease-out text-charcoal text-justify text-14 md:text-16 leading-relaxed order-2 md:order-1"
           >
             <p>
               Kabupaten Bekasi terbentuk pada tanggal 15 Agustus 1950. Sebelumnya, Bekasi masuk dalam Kabupaten Jatinegara. Dalam catatan sejarah, nama Bekasi memiliki arti dan nilai sejarah yang khas. Menurut <strong className="text-forest-green">Poerbatjaraka</strong>, seorang ahli bahasa Sansekerta dan Jawa Kuno, menerjemahkan asal mula kata Bekasi secara filosofis, berasal dari kata Chandrabhaga. <em>Chandra</em> berarti bulan dalam bahasa Jawa Kuno, sama dengan kata <em>Sasi</em>, dan <em>Bhaga</em> berarti bagian. Jadi, secara etimologis, kata Chandrabhaga berarti bagian dari bulan.
@@ -82,7 +82,7 @@ export default function SejarahContent() {
           </div>
           <div
             ref={addToRefs}
-            className="opacity-0 translate-y-24 transition-all duration-700 ease-out text-charcoal text-justify text-sm md:text-base leading-relaxed"
+            className="opacity-0 translate-y-24 transition-all duration-700 ease-out text-charcoal text-justify text-14 md:text-16 leading-relaxed"
           >
             <p>
               Kata Chandrabhaga berubah menjadi Bhagasasi yang pengucapannya sering disingkat menjadi Bhagasi. Kata Bhagasi ini dalam pelafalan bahasa Belanda seringkali ditulis <em>Bacassie</em>, kemudian berubah menjadi Bekasi hingga kini. Bekasi dikenal sebagai Bumi Patriot, yakni sebuah daerah yang dijaga para pembela tanah air. Mereka berjuang sampai titik darah penghabisan untuk mempertahankan negeri tercinta dan merebut kemerdekaan dari tangan penjajah.
@@ -94,7 +94,7 @@ export default function SejarahContent() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <div
             ref={addToRefs}
-            className="opacity-0 translate-y-24 transition-all duration-700 ease-out text-charcoal text-justify text-sm md:text-base leading-relaxed order-2 md:order-1"
+            className="opacity-0 translate-y-24 transition-all duration-700 ease-out text-charcoal text-justify text-14 md:text-16 leading-relaxed order-2 md:order-1"
           >
             <p>
               Sejarah terbentuknya Kabupaten Bekasi dimulai dengan dibentuknya Panitia Amanat Rakyat Bekasi yang dipelopori oleh <strong className="text-forest-green">R. Supardi</strong>, <strong className="text-forest-green">M. Hasibuan</strong>, <strong className="text-forest-green">KH. Noer Alie</strong>, <strong className="text-forest-green">Namin</strong>, <strong className="text-forest-green">Aminudin</strong>, dan <strong className="text-forest-green">Marzuki Urmaini</strong> yang menentang keberadaan RIS - Pasundan dan menuntut berdirinya kembali Negara Kesatuan RI. Selanjutnya, diadakan Rapat Raksasa di Alun-alun Bekasi yang dihadiri sekitar 40.000 orang rakyat Bekasi pada tanggal 17 Februari 1950.
@@ -117,7 +117,7 @@ export default function SejarahContent() {
       <div className="mt-16 mb-16">
         <h3
           ref={addToRefs}
-          className="opacity-0 translate-y-24 transition-all duration-700 ease-out text-xl md:text-2xl font-bold text-center text-forest-green mb-8"
+          className="opacity-0 translate-y-24 transition-all duration-700 ease-out text-18 md:text-20 font-bold text-center text-forest-green mb-8"
         >
           Tuntutan Rakyat Bekasi
         </h3>
@@ -128,7 +128,7 @@ export default function SejarahContent() {
               ref={addToRefs}
               className="group opacity-0 translate-y-24 transition-all duration-700 ease-out bg-mint-gray border border-sage-green/20 rounded-xl p-5 md:p-6 flex items-center justify-center cursor-default hover:bg-sage-green hover:border-sage-green hover:shadow-lg"
             >
-              <p className="text-sm text-center text-charcoal font-medium group-hover:text-off-white transition-colors duration-300">
+              <p className="text-14 md:text-16 text-center text-charcoal font-medium group-hover:text-off-white transition-colors duration-300">
                 {tuntutan}
               </p>
             </div>
@@ -151,7 +151,7 @@ export default function SejarahContent() {
           </div>
           <div
             ref={addToRefs}
-            className="opacity-0 translate-y-24 transition-all duration-700 ease-out text-charcoal text-justify text-sm md:text-base leading-relaxed"
+            className="opacity-0 translate-y-24 transition-all duration-700 ease-out text-charcoal text-justify text-14 md:text-16 leading-relaxed"
           >
             <p>
               Upaya para pemimpin Panitia Amanat Rakyat Bekasi untuk memperoleh dukungan dari berbagai pihak terus dilakukan, di antaranya mendekati para pemimpin Masjumi, tokoh militer <strong className="text-forest-green">Mayor Lukas Kustaryo</strong> dan <strong className="text-forest-green">Moh. Moefreini Mukmin</strong> di Jakarta. Pengajuan usul dilakukan tiga kali antara bulan Februari sampai dengan bulan Juni 1950 hingga akhirnya setelah dibicarakan dengan DPR RIS, dan <strong className="text-forest-green">Mohammad Hatta</strong> menyetujui penggantian nama "Kabupaten Jatinegara" menjadi Kabupaten Bekasi.
@@ -163,7 +163,7 @@ export default function SejarahContent() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <div
             ref={addToRefs}
-            className="opacity-0 translate-y-24 transition-all duration-700 ease-out text-charcoal text-justify text-sm md:text-base leading-relaxed order-2 md:order-1"
+            className="opacity-0 translate-y-24 transition-all duration-700 ease-out text-charcoal text-justify text-14 md:text-16 leading-relaxed order-2 md:order-1"
           >
             <p>
               Persetujuan pembentukan Kabupaten Bekasi semakin kuat setelah dikeluarkannya Undang-undang No. 14 Tahun 1950. Kabupaten Bekasi secara resmi dibentuk dan ditetapkan tanggal 15 Agustus 1950 sebagai Hari Jadi Kabupaten Bekasi. Selanjutnya pada tanggal 2 April 1960, Pusat Pemda Bekasi semula dipusatkan di Jatinegara (sekarang Markas Kodim 0505 Jayakarta, Jakarta) dipindahkan ke gedung baru Mustika Pura Kantor Pemda Bekasi yang terletak di Bekasi Kaum Jl. Ir. H. Juanda. Kemudian pada tahun 1982 saat Bupati Bekasi dijabat <strong className="text-forest-green">H. Abdul Fatah</strong>, pusat perkantoran Pemda Kabupaten Bekasi kembali dipindah ke Jalan A Yani No. 1 Bekasi.
@@ -195,7 +195,7 @@ export default function SejarahContent() {
           </div>
           <div
             ref={addToRefs}
-            className="opacity-0 translate-y-24 transition-all duration-700 ease-out text-charcoal text-justify text-sm md:text-base leading-relaxed"
+            className="opacity-0 translate-y-24 transition-all duration-700 ease-out text-charcoal text-justify text-14 md:text-16 leading-relaxed"
           >
             <p>
               Kabupaten Bekasi sendiri terdiri dari empat kewedanan, 13 kecamatan, dan 95 desa. Seiring berjalannya waktu, Bekasi mengalami perkembangan yang cukup pesat. Sehingga Kecamatan Bekasi menuntut dimekarkannya Kabupaten Bekasi menjadi Kota Administratif Bekasi yang terdiri atas empat kecamatan yaitu: Kecamatan Bekasi Timur, Bekasi Selatan, Bekasi Barat, Bekasi Utara, yang seluruhnya meliputi 18 kelurahan dan delapan desa. Ini semua berdasarkan Peraturan Pemerintah Nomor 48 Tahun 1981. Sementara peresmian Kota administratif sendiri dilakukan oleh Menteri Dalam Negeri pada tanggal 20 April 1982.
@@ -209,7 +209,7 @@ export default function SejarahContent() {
         ref={addToRefs}
         className="mt-16 md:mt-20 opacity-0 translate-y-24 transition-all duration-700 ease-out max-w-4xl mx-auto bg-mint-gray/70 border border-sage-green/20 rounded-xl p-6"
       >
-        <p className="text-center text-sm md:text-base text-charcoal font-medium">
+        <p className="text-center text-14 md:text-16 leading-relaxed text-charcoal font-medium">
           Perkembangan Bekasi yang semakin pesat membuat wilayah ini harus dimekarkan kembali menjadi dua wilayah, yaitu Kota Bekasi dan Kabupaten Bekasi melalui Undang-undang Nomor 9 Tahun 1996.
         </p>
       </div>

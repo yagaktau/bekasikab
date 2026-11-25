@@ -146,7 +146,7 @@ function GenderDonut({ laki, perempuan, active, delay = 0 }) {
     <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 md:gap-6">
       <div className="flex items-center gap-2 justify-self-start">
         <span className="h-3 w-3 shrink-0 rounded-full bg-sage-green" />
-        <span className="min-w-[5ch] text-right text-20 md:text-28 font-medium tabular-nums text-charcoal">
+        <span className="min-w-[5ch] text-right text-18 md:text-24 font-medium tabular-nums text-charcoal">
           {fmt(shownP)}
         </span>
       </div>
@@ -175,7 +175,7 @@ function GenderDonut({ laki, perempuan, active, delay = 0 }) {
       </div>
       <div className="flex items-center gap-2 justify-self-end">
         <span className="h-3 w-3 shrink-0 rounded-full bg-forest-green" />
-        <span className="min-w-[5ch] text-20 md:text-28 font-medium tabular-nums text-charcoal">
+        <span className="min-w-[5ch] text-18 md:text-24 font-medium tabular-nums text-charcoal">
           {fmt(shownL)}
         </span>
       </div>
@@ -199,14 +199,14 @@ export default function DataPNS() {
   return (
     <div ref={pnsRef}>
       <div className="mt-12 md:mt-16 mb-8">
-        <h2 className="text-32 md:text-48 font-bold text-forest-green border-b-2 border-sage-green pb-2 inline-block">
+        <h2 className="text-24 md:text-34 font-bold text-forest-green border-b-2 border-sage-green pb-2 inline-block">
           Data Pegawai Negeri Sipil (PNS)
         </h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-stretch">
         <StatCard index={0} active={pnsInView}>
-          <p className="text-16 md:text-24 font-medium text-charcoal">
+          <p className="text-14 md:text-16 font-medium text-charcoal leading-relaxed">
             Jumlah PNS di lingkungan Pemerintah Daerah Kabupaten Bekasi sebanyak
           </p>
           <p className="flex items-end gap-3 mt-4">
@@ -216,7 +216,7 @@ export default function DataPNS() {
               delay={300}
               className="text-48 md:text-96 font-bold text-forest-green"
             />
-            <span className="pb-2 text-16 md:text-24 font-semibold text-charcoal">
+            <span className="pb-2 text-16 md:text-20 font-semibold text-charcoal">
               Orang
             </span>
           </p>
@@ -225,7 +225,7 @@ export default function DataPNS() {
         <StatCard index={1} active={pnsInView} className="!gap-2">
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <p className="text-14 md:text-24 font-medium text-charcoal">
+              <p className="text-14 md:text-16 font-medium text-charcoal">
                 Perempuan
               </p>
               <div className="flex items-end gap-1">
@@ -236,10 +236,10 @@ export default function DataPNS() {
                   className="text-48 md:text-96 font-bold text-sage-green"
                 />
               </div>
-              <p className="text-24 text-charcoal">Orang</p>
+              <p className="text-16 md:text-20 font-medium text-charcoal">Orang</p>
             </div>
             <div className="flex flex-col items-end text-right">
-              <p className="text-14 md:text-24 font-medium text-charcoal">
+              <p className="text-14 md:text-16 font-medium text-charcoal">
                 Laki-laki
               </p>
               <div className="flex items-end gap-1">
@@ -250,7 +250,7 @@ export default function DataPNS() {
                   className="text-48 md:text-96 font-bold text-forest-green"
                 />
               </div>
-              <p className="text-24 text-charcoal">Orang</p>
+              <p className="text-16 md:text-20 font-medium text-charcoal">Orang</p>
             </div>
           </div>
           {displayData.total > 0 && (
@@ -264,14 +264,14 @@ export default function DataPNS() {
         </StatCard>
 
         <StatCard index={2} active={pnsInView}>
-          <p className="text-16 md:text-24 font-medium text-charcoal">
+          <p className="text-14 md:text-16 font-medium text-charcoal leading-relaxed">
             Golongan terbanyak yang diduduki oleh PNS
           </p>
-          <p className="text-32 md:text-40 font-bold leading-tight text-sage-green mt-2">
+          <p className="text-24 md:text-34 font-bold leading-tight text-sage-green mt-2">
             {displayData.golongan}
           </p>
           <div className="mt-4">
-            <p className="text-24 text-charcoal">Sebanyak</p>
+            <p className="text-14 md:text-16 font-medium text-charcoal">Sebanyak</p>
             <p className="flex items-end gap-2">
               <SlotNumber
                 value={displayData.golonganJumlah}
@@ -279,7 +279,7 @@ export default function DataPNS() {
                 delay={600}
                 className="text-48 md:text-96 font-bold text-forest-green"
               />
-              <span className="pb-1 text-24 font-medium text-charcoal">
+              <span className="pb-1 text-16 md:text-20 font-medium text-charcoal">
                 Orang
               </span>
             </p>
@@ -287,14 +287,14 @@ export default function DataPNS() {
         </StatCard>
 
         <StatCard index={3} active={pnsInView} className="items-end text-right">
-          <p className="text-16 md:text-24 font-medium text-charcoal">
+          <p className="text-14 md:text-16 font-medium text-charcoal leading-relaxed">
             Latar belakang pendidikan terbanyak
           </p>
-          <p className="text-32 md:text-40 font-bold leading-tight text-sage-green mt-2">
+          <p className="text-24 md:text-34 font-bold leading-tight text-sage-green mt-2">
             {displayData.pendidikan}
           </p>
           <div className="flex flex-col items-end mt-4">
-            <p className="text-24 text-charcoal">Sebanyak</p>
+            <p className="text-14 md:text-16 font-medium text-charcoal">Sebanyak</p>
             <p className="flex items-end gap-2">
               <SlotNumber
                 value={displayData.pendidikanJumlah}
@@ -302,7 +302,7 @@ export default function DataPNS() {
                 delay={750}
                 className="text-48 md:text-96 font-bold text-forest-green"
               />
-              <span className="pb-1 text-24 font-medium text-charcoal">
+              <span className="pb-1 text-16 md:text-20 font-medium text-charcoal">
                 Orang
               </span>
             </p>

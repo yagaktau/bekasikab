@@ -35,7 +35,7 @@ export default function LambangGrid() {
   return (
     <>
       <div className="mt-12 md:mt-16 mb-8">
-        <h2 className="text-32 md:text-48 font-bold text-forest-green border-b-2 border-sage-green pb-2 inline-block">
+        <h2 className="text-24 md:text-34 font-bold text-forest-green border-b-2 border-sage-green pb-2 inline-block">
           Lambang Kabupaten Bekasi
         </h2>
       </div>
@@ -50,10 +50,10 @@ export default function LambangGrid() {
               ref={addToRefs}
               className="group opacity-0 translate-y-24 transition-all duration-700 ease-out bg-mint-gray rounded-xl p-6 md:p-8 cursor-default hover:bg-sage-green hover:shadow-xl border border-sage-green/20 hover:border-sage-green"
             >
-              <h3 className="text-24 md:text-28 font-bold text-forest-green group-hover:text-off-white transition-colors duration-300 mb-3 text-justify lg:text-right">
+              <h3 className="text-18 md:text-20 font-bold text-forest-green group-hover:text-off-white transition-colors duration-300 mb-3 text-justify lg:text-right">
                 {item.title}
               </h3>
-              <p className="text-14 md:text-16 text-charcoal group-hover:text-off-white/95 transition-colors duration-300 text-justify lg:text-right">
+              <p className="text-14 md:text-16 leading-relaxed text-charcoal group-hover:text-off-white/95 transition-colors duration-300 text-justify lg:text-right">
                 {item.desc}
               </p>
             </div>
@@ -80,10 +80,10 @@ export default function LambangGrid() {
               ref={addToRefs}
               className="group opacity-0 translate-y-24 transition-all duration-700 ease-out bg-mint-gray rounded-xl p-6 md:p-8 cursor-default hover:bg-sage-green hover:shadow-xl border border-sage-green/20 hover:border-sage-green"
             >
-              <h3 className="text-24 md:text-28 font-bold text-forest-green group-hover:text-off-white transition-colors duration-300 mb-3 text-justify lg:text-left">
+              <h3 className="text-18 md:text-20 font-bold text-forest-green group-hover:text-off-white transition-colors duration-300 mb-3 text-justify lg:text-left">
                 {item.title}
               </h3>
-              <p className="text-14 md:text-16 text-charcoal group-hover:text-off-white/95 transition-colors duration-300 text-justify lg:text-left">
+              <p className="text-14 md:text-16 leading-relaxed text-charcoal group-hover:text-off-white/95 transition-colors duration-300 text-justify lg:text-left">
                 {item.desc}
               </p>
             </div>
@@ -97,10 +97,10 @@ export default function LambangGrid() {
           ref={addToRefs}
           className="group opacity-0 translate-y-24 transition-all duration-700 ease-out bg-mint-gray rounded-xl p-6 md:p-10 w-full lg:w-2/3 cursor-default hover:bg-sage-green hover:shadow-xl border border-sage-green/20 hover:border-sage-green"
         >
-          <h3 className="text-24 md:text-28 font-bold text-forest-green group-hover:text-off-white transition-colors duration-300 mb-4 text-center">
+          <h3 className="text-18 md:text-20 font-bold text-forest-green group-hover:text-off-white transition-colors duration-300 mb-4 text-center">
             Gelombang Air
           </h3>
-          <p className="text-14 md:text-16 text-charcoal group-hover:text-off-white/95 transition-colors duration-300 text-center mb-6">
+          <p className="text-14 md:text-16 leading-relaxed text-charcoal group-hover:text-off-white/95 transition-colors duration-300 text-center mb-6">
             Terdiri dari 6 gelombang yang melambangkan semangat perjuangan tiada henti dan melambangkan 6 zaman yang dialami Kabupaten Bekasi, yaitu:
           </p>
 
@@ -108,7 +108,7 @@ export default function LambangGrid() {
             {gelombangTags.map((tag, index) => (
               <span
                 key={index}
-                className="bg-sage-green/15 text-charcoal border border-sage-green/30 font-medium px-4 py-2 rounded-full text-14 md:text-16 group-hover:bg-off-white/20 group-hover:text-off-white group-hover:border-off-white/30 transition-colors duration-300"
+                className="bg-sage-green/15 text-charcoal border border-sage-green/30 font-medium px-4 py-2 rounded-full text-13 md:text-14 group-hover:bg-off-white/20 group-hover:text-off-white group-hover:border-off-white/30 transition-colors duration-300"
               >
                 {tag}
               </span>

@@ -106,7 +106,7 @@ export default function BatasWilayah() {
             wilayah.colorLabel
           } ${isHovered ? 'scale-150 ring-2 ring-off-white' : ''}`}
         ></span>
-        <span className="font-medium text-sm sm:text-base">{wilayah.name}</span>
+        <span className="font-medium text-14 md:text-16">{wilayah.name}</span>
       </button>
     );
   };
@@ -114,10 +114,10 @@ export default function BatasWilayah() {
   return (
     <div className="w-full max-w-5xl mx-auto mb-12">
       <div className="mb-6">
-        <h2 className="text-24 md:text-32 font-bold text-forest-green border-b-2 border-sage-green pb-2 inline-block">
+        <h2 className="text-24 md:text-34 font-bold text-forest-green border-b-2 border-sage-green pb-2 inline-block">
           Peta Wilayah Administrasi
         </h2>
-        <p className="text-charcoal text-14 md:text-16 mt-2">
+        <p className="text-charcoal text-14 md:text-16 leading-relaxed mt-2">
           <span className="lg:hidden">
             Ketuk wilayah atau pin pada peta untuk melihat batas administrasi.
           </span>
@@ -236,7 +236,7 @@ export default function BatasWilayah() {
                     <p className="text-[10px] font-bold uppercase tracking-wider text-sage-green leading-none mb-0.5">
                       {hoveredWilayah.arah}
                     </p>
-                    <p className="text-xs font-bold text-forest-green leading-tight">
+                    <p className="text-13 font-bold text-forest-green leading-tight">
                       {hoveredWilayah.name}
                     </p>
                   </div>
@@ -248,7 +248,7 @@ export default function BatasWilayah() {
 
         {/* KOLOM KANAN (1/3): LEGENDA KELOMPOK ARAH (Mint Gray) */}
         <div className="hidden lg:block lg:col-span-1 bg-mint-gray rounded-xl border border-sage-green/20 p-5 shadow-sm">
-          <h3 className="font-bold text-forest-green mb-4 text-base sm:text-lg border-b border-sage-green/20 pb-3">
+          <h3 className="font-bold text-forest-green mb-4 text-18 md:text-20 border-b border-sage-green/20 pb-3">
             Batas Wilayah Administrasi
           </h3>
 
@@ -258,7 +258,7 @@ export default function BatasWilayah() {
 
             {/* UTARA */}
             <div>
-              <p className="text-xs font-bold text-forest-green/75 uppercase mb-2">
+              <p className="text-13 font-bold text-forest-green/75 uppercase mb-2">
                 Utara
               </p>
               <button
@@ -277,7 +277,7 @@ export default function BatasWilayah() {
                       : 'bg-sage-green'
                   }`}
                 ></span>
-                <span className="font-medium text-sm sm:text-base">
+                <span className="font-medium text-14 md:text-16">
                   Laut Jawa
                 </span>
               </button>
@@ -285,7 +285,7 @@ export default function BatasWilayah() {
 
             {/* TIMUR */}
             <div>
-              <p className="text-xs font-bold text-forest-green/75 uppercase mb-2">
+              <p className="text-13 font-bold text-forest-green/75 uppercase mb-2">
                 Timur
               </p>
               {renderListButton('karawang')}
@@ -293,7 +293,7 @@ export default function BatasWilayah() {
 
             {/* SELATAN */}
             <div>
-              <p className="text-xs font-bold text-forest-green/75 uppercase mb-2">
+              <p className="text-13 font-bold text-forest-green/75 uppercase mb-2">
                 Selatan
               </p>
               {renderListButton('kabbogor')}
@@ -301,7 +301,7 @@ export default function BatasWilayah() {
 
             {/* BARAT */}
             <div>
-              <p className="text-xs font-bold text-forest-green/75 uppercase mb-2">
+              <p className="text-13 font-bold text-forest-green/75 uppercase mb-2">
                 Barat
               </p>
               <div className="flex flex-col gap-2">

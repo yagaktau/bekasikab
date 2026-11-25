@@ -5,7 +5,7 @@ export default function Misi() {
   return (
     <>
       <div className="mt-12 md:mt-16 mb-8">
-        <h2 className="text-32 md:text-48 font-bold text-forest-green border-b-2 border-sage-green pb-2 inline-block">
+        <h2 className="text-24 md:text-34 font-bold text-forest-green border-b-2 border-sage-green pb-2 inline-block">
           Misi Pemerintahan Kabupaten Bekasi
         </h2>
       </div>
@@ -21,7 +21,7 @@ export default function Misi() {
               <div className="w-16 h-16 rounded-full bg-forest-green text-off-white flex items-center justify-center mb-5 transition-transform duration-500 group-hover:scale-125 group-hover:bg-off-white group-hover:text-forest-green shadow-md">
                 {item.icon}
               </div>
-              <p className="text-base md:text-lg font-medium text-charcoal group-hover:text-off-white transition-colors duration-300 leading-relaxed">
+              <p className="text-14 md:text-16 font-medium text-charcoal group-hover:text-off-white transition-colors duration-300 leading-relaxed">
                 {item.text}
               </p>
             </div>
@@ -34,7 +34,7 @@ export default function Misi() {
             <div className="w-16 h-16 rounded-full bg-forest-green text-off-white flex items-center justify-center mb-5 transition-transform duration-500 group-hover:scale-125 group-hover:bg-off-white group-hover:text-forest-green shadow-md">
               {misiItems[2].icon}
             </div>
-            <p className="text-base md:text-lg font-medium text-charcoal group-hover:text-off-white transition-colors duration-300 leading-relaxed">
+            <p className="text-14 md:text-16 font-medium text-charcoal group-hover:text-off-white transition-colors duration-300 leading-relaxed">
               {misiItems[2].text}
             </p>
           </div>
@@ -50,7 +50,7 @@ export default function Misi() {
               <div className="w-16 h-16 rounded-full bg-forest-green text-off-white flex items-center justify-center mb-5 transition-transform duration-500 group-hover:scale-125 group-hover:bg-off-white group-hover:text-forest-green shadow-md">
                 {item.icon}
               </div>
-              <p className="text-base md:text-lg font-medium text-charcoal group-hover:text-off-white transition-colors duration-300 leading-relaxed">
+              <p className="text-14 md:text-16 font-medium text-charcoal group-hover:text-off-white transition-colors duration-300 leading-relaxed">
                 {item.text}
               </p>
             </div>

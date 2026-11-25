@@ -16,7 +16,7 @@ class ErrorBoundary extends Component {
   render() {
     if (this.state.error) {
       return (
-        <pre className="m-6 whitespace-pre-wrap rounded bg-red-100 p-4 text-red-800">
+        <pre className="m-6 whitespace-pre-wrap rounded bg-red-100 p-4 text-14 text-red-800">
           {String(this.state.error.stack || this.state.error)}
         </pre>
       );

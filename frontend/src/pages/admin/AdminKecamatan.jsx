@@ -1,8 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 
 export default function AdminKecamatan() {
   const [kecamatanList, setKecamatanList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  // State Pencarian & Sortir
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' = A-Z, 'desc' = Z-A
 
   // State Mode Edit
   const [editId, setEditId] = useState(null);
@@ -31,6 +35,38 @@ export default function AdminKecamatan() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  // --- Filter Pencarian & Urutan A-Z / Z-A ---
+  const filteredKecamatanList = useMemo(() => {
+    const query = searchQuery.toLowerCase().trim();
+
+    const filtered = kecamatanList.filter((item) => {
+      if (!query) return true;
+
+      const namaKec = (item.namaKecamatan || item.title || '').toLowerCase();
+      const daftarKelurahan = Array.isArray(item.namaKelurahan)
+        ? item.namaKelurahan.join(' ').toLowerCase()
+        : '';
+      const daftarDesa = Array.isArray(item.namaDesa)
+        ? item.namaDesa.join(' ').toLowerCase()
+        : '';
+
+      return (
+        namaKec.includes(query) ||
+        daftarKelurahan.includes(query) ||
+        daftarDesa.includes(query)
+      );
+    });
+
+    return [...filtered].sort((a, b) => {
+      const nameA = (a.namaKecamatan || a.title || '').trim();
+      const nameB = (b.namaKecamatan || b.title || '').trim();
+
+      return sortOrder === 'asc'
+        ? nameA.localeCompare(nameB, 'id', { sensitivity: 'base' })
+        : nameB.localeCompare(nameA, 'id', { sensitivity: 'base' });
+    });
+  }, [kecamatanList, searchQuery, sortOrder]);
 
   // --- Handler Dinamis Kelurahan ---
   const handleKelurahanChange = (index, value) => {
@@ -300,16 +336,86 @@ export default function AdminKecamatan() {
           </form>
         </div>
 
-        {/* PANEL KANAN: TABEL DAFTAR DATA */}
-        <div className="lg:col-span-2 bg-off-white rounded-xl border border-sage-green/25 shadow-sm overflow-hidden h-fit">
-          <div className="overflow-x-auto">
+        {/* PANEL KANAN: TOOLBAR CARI/SORTIR + TABEL SCROLL MANDIRI */}
+        <div className="lg:col-span-2 bg-off-white rounded-xl border border-sage-green/25 shadow-sm overflow-hidden h-fit flex flex-col">
+          {/* Toolbar Pencarian & Sortir A-Z / Z-A */}
+          <div className="p-4 bg-mint-gray/60 border-b border-sage-green/25 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            {/* Input Cari */}
+            <div className="relative flex-1">
+              <svg
+                className="w-4 h-4 text-charcoal/50 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Cari kecamatan, kelurahan, atau desa..."
+                className="w-full pl-9 pr-8 py-2 bg-off-white text-charcoal text-sm border border-sage-green/30 rounded-lg focus:outline-none focus:border-forest-green focus:ring-1 focus:ring-sage-green"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  title="Hapus pencarian"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-charcoal/50 hover:text-charcoal text-xs font-bold px-1"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* Info Jumlah & Tombol Sortir A-Z / Z-A */}
+            <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
+              <span className="text-xs text-charcoal/70 font-medium">
+                <strong className="text-forest-green">
+                  {filteredKecamatanList.length}
+                </strong>{' '}
+                dari {kecamatanList.length} data
+              </span>
+
+              <div className="inline-flex rounded-lg border border-sage-green/30 bg-off-white p-0.5">
+                <button
+                  type="button"
+                  onClick={() => setSortOrder('asc')}
+                  className={`px-2.5 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+                    sortOrder === 'asc'
+                      ? 'bg-forest-green text-off-white'
+                      : 'text-charcoal/75 hover:text-forest-green'
+                  }`}
+                >
+                  A - Z
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSortOrder('desc')}
+                  className={`px-2.5 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+                    sortOrder === 'desc'
+                      ? 'bg-forest-green text-off-white'
+                      : 'text-charcoal/75 hover:text-forest-green'
+                  }`}
+                >
+                  Z - A
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Kontainer Scroll Mandiri Tabel (Vertikal & Horizontal) */}
+          <div className="overflow-x-auto overflow-y-auto max-h-[620px]">
             <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-forest-green text-off-white text-sm border-b border-sage-green/30">
-                  <th className="p-4 font-semibold">Kecamatan</th>
-                  <th className="p-4 font-semibold">Daftar Kelurahan</th>
-                  <th className="p-4 font-semibold">Daftar Desa</th>
-                  <th className="p-4 font-semibold text-center">Foto</th>
+              <thead className="sticky top-0 z-10 bg-forest-green text-off-white text-sm border-b border-sage-green/30 shadow-sm">
+                <tr>
+                  <th className="p-4 font-semibold min-w-[160px]">Kecamatan</th>
+                  <th className="p-4 font-semibold min-w-[190px]">Daftar Kelurahan</th>
+                  <th className="p-4 font-semibold min-w-[210px]">Daftar Desa</th>
+                  <th className="p-4 font-semibold text-center w-24">Foto</th>
                   <th className="p-4 font-semibold w-36 text-center">Aksi</th>
                 </tr>
               </thead>
@@ -320,11 +426,27 @@ export default function AdminKecamatan() {
                       Belum ada data wilayah.
                     </td>
                   </tr>
+                ) : filteredKecamatanList.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" className="p-8 text-center text-charcoal/70">
+                      <p>
+                        Tidak ditemukan wilayah dengan kata kunci{' '}
+                        <strong className="text-forest-green">"{searchQuery}"</strong>.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setSearchQuery('')}
+                        className="mt-2 text-xs text-forest-green font-semibold underline hover:text-sage-green"
+                      >
+                        Reset Pencarian
+                      </button>
+                    </td>
+                  </tr>
                 ) : (
-                  kecamatanList.map((item) => (
+                  filteredKecamatanList.map((item) => (
                     <tr
                       key={item.id}
-                      className={`border-b border-sage-green/20 hover:bg-mint-gray/50 transition-colors ${
+                      className={`border-b border-sage-green/20 hover:bg-mint-gray/50 transition-colors align-top ${
                         editId === item.id ? 'bg-mint-gray' : ''
                       }`}
                     >
@@ -332,15 +454,20 @@ export default function AdminKecamatan() {
                         {item.namaKecamatan || item.title}
                       </td>
                       <td className="p-4 text-charcoal">
-                        {Array.isArray(item.namaKelurahan) &&
-                        item.namaKelurahan.length > 0
-                          ? item.namaKelurahan.join(', ')
-                          : '-'}
+                        <div className="max-h-24 overflow-y-auto pr-1 leading-relaxed">
+                          {Array.isArray(item.namaKelurahan) &&
+                          item.namaKelurahan.length > 0
+                            ? item.namaKelurahan.join(', ')
+                            : '-'}
+                        </div>
                       </td>
                       <td className="p-4 text-charcoal">
-                        {Array.isArray(item.namaDesa) && item.namaDesa.length > 0
-                          ? item.namaDesa.join(', ')
-                          : '-'}
+                        <div className="max-h-24 overflow-y-auto pr-1 leading-relaxed">
+                          {Array.isArray(item.namaDesa) &&
+                          item.namaDesa.length > 0
+                            ? item.namaDesa.join(', ')
+                            : '-'}
+                        </div>
                       </td>
                       <td className="p-4 text-center">
                         {item.foto || item.gambar ? (
