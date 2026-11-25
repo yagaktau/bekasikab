@@ -1,6 +1,11 @@
+import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 
 export default function PosterCarousel({ dataPimpinan = [], onSelectLeader }) {
+  const containerRef = useRef(null);
+  const isJumpingRef = useRef(false);
+  const scrollTimeoutRef = useRef(null);
+
   // Jika database masih kosong
   if (dataPimpinan.length === 0) {
     return (
@@ -21,24 +26,111 @@ export default function PosterCarousel({ dataPimpinan = [], onSelectLeader }) {
     );
   }
 
-  const loopingLeaders = [...dataPimpinan, ...dataPimpinan];
+  // Gandakan menjadi 3 set (Kiri - Tengah - Kanan) agar bisa loop ke dua arah
+  const isLoopable = dataPimpinan.length > 1;
+  const loopingLeaders = isLoopable
+    ? [...dataPimpinan, ...dataPimpinan, ...dataPimpinan]
+    : dataPimpinan;
+
+  // Atur posisi awal langsung ke kartu pertama pada set tengah
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || !isLoopable) return;
+
+    const setInitialPosition = () => {
+      const cards = container.querySelectorAll('[data-carousel-card]');
+      const firstMiddleCard = cards[dataPimpinan.length];
+      if (firstMiddleCard) {
+        const centerOffset =
+          (container.clientWidth - firstMiddleCard.offsetWidth) / 2;
+        container.style.scrollBehavior = 'auto';
+        container.scrollLeft = firstMiddleCard.offsetLeft - centerOffset;
+      }
+    };
+
+    const rafId = requestAnimationFrame(setInitialPosition);
+    window.addEventListener('resize', setInitialPosition);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', setInitialPosition);
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    };
+  }, [dataPimpinan, isLoopable]);
+
+  // Kembalikan posisi scroll secara diam-diam ke set tengah saat melewati batas
+  const handleScroll = () => {
+    const container = containerRef.current;
+    if (!container || isJumpingRef.current || !isLoopable) return;
+
+    const cards = container.querySelectorAll('[data-carousel-card]');
+    const n = dataPimpinan.length;
+    if (cards.length < n * 3) return;
+
+    const singleSetWidth = cards[n].offsetLeft - cards[0].offsetLeft;
+    if (singleSetWidth <= 0) return;
+
+    const teleport = (delta) => {
+      isJumpingRef.current = true;
+      container.style.scrollBehavior = 'auto';
+      container.scrollLeft += delta;
+      requestAnimationFrame(() => {
+        isJumpingRef.current = false;
+      });
+    };
+
+    // Antisipasi swipe cepat agar tidak mentok ujung kontainer
+    if (container.scrollLeft <= singleSetWidth * 0.25) {
+      teleport(singleSetWidth);
+      return;
+    }
+    if (container.scrollLeft >= singleSetWidth * 1.75) {
+      teleport(-singleSetWidth);
+      return;
+    }
+
+    // Setelah snap berhenti, pusatkan kembali posisi ke set tengah
+    if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    scrollTimeoutRef.current = setTimeout(() => {
+      if (!container) return;
+      const currentCards = container.querySelectorAll('[data-carousel-card]');
+      if (currentCards.length < n * 3) return;
+
+      const setWidth = currentCards[n].offsetLeft - currentCards[0].offsetLeft;
+      const centerOffset =
+        (container.clientWidth - currentCards[n].offsetWidth) / 2;
+      const middleStart = currentCards[n].offsetLeft - centerOffset;
+      const middleEnd = middleStart + setWidth;
+
+      if (container.scrollLeft < middleStart - 10) {
+        teleport(setWidth);
+      } else if (container.scrollLeft >= middleEnd - 10) {
+        teleport(-setWidth);
+      }
+    }, 120);
+  };
 
   return (
     <div className="w-full max-w-[1728px] mx-auto px-0 md:px-[64px] py-12 md:py-16 overflow-hidden">
-      <div className="flex flex-row w-full h-[500px] md:h-[650px] gap-4 md:gap-1 overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none -skew-x-[8deg] md:px-8 px-5 py-4 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div
+        ref={containerRef}
+        onScroll={handleScroll}
+        className="flex flex-row w-full h-[500px] md:h-[650px] gap-4 md:gap-1 overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none -skew-x-[8deg] md:px-8 px-5 py-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+      >
         {loopingLeaders.map((leader, index) => {
-          const isOriginal = index < dataPimpinan.length;
+          const isMiddleSet =
+            !isLoopable ||
+            (index >= dataPimpinan.length && index < dataPimpinan.length * 2);
 
           return (
             <motion.div
               key={`${leader.id}-${index}`}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: isOriginal ? index * 0.1 : 0 }}
+              data-carousel-card
+              initial={{ opacity: 1, y: 0 }}
+              animate={{ opacity: 1, y: 0 }}
               className={`group relative flex-none w-[82vw] md:w-auto h-full snap-center bg-charcoal rounded-xl md:rounded-none overflow-hidden cursor-pointer transition-all duration-500 ease-out shadow-xl border border-sage-green/30
                 ${
-                  isOriginal
+                  isMiddleSet
                     ? 'block md:flex-1 md:first:rounded-l-xl md:last:rounded-r-xl md:hover:flex-[1.2]'
                     : 'block md:hidden'
                 }

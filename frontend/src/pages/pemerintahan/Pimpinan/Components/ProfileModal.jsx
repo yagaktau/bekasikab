@@ -24,6 +24,9 @@ export default function ProfileModal({ leader, onClose }) {
     if (rows.length === 0) return null;
 
     const headers = rows[0].split('|').map((h) => h.trim());
+    if (headers.length > 1 && headers[headers.length - 1] === '') {
+      headers.pop();
+    }
     const dataRows = rows.slice(1);
 
     return (
@@ -44,7 +47,7 @@ export default function ProfileModal({ leader, onClose }) {
           </thead>
           <tbody className="bg-off-white divide-y divide-sage-green/20">
             {dataRows.map((row, rowIdx) => {
-              const columns = row.split('|').map((c) => c.trim());
+              const rawColumns = row.split('|').map((c) => c.trim());
               return (
                 <tr
                   key={rowIdx}
@@ -53,12 +56,12 @@ export default function ProfileModal({ leader, onClose }) {
                   <td className="p-3 text-center text-charcoal/70 font-medium">
                     {rowIdx + 1}
                   </td>
-                  {columns.map((col, colIdx) => (
+                  {headers.map((_, colIdx) => (
                     <td
                       key={colIdx}
                       className="p-3 text-charcoal border-l border-sage-green/20"
                     >
-                      {col}
+                      {rawColumns[colIdx] || ''}
                     </td>
                   ))}
                 </tr>
@@ -85,7 +88,7 @@ export default function ProfileModal({ leader, onClose }) {
               {leader.jabatan}
             </h3>
             <p className="text-mint-gray text-14 mt-1 font-medium">
-              Kabupaten Bekasi • Periode {leader.periode || '-'}
+              Kabupaten Bekasi
             </p>
           </div>
           <button
